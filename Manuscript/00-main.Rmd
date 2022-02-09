@@ -1,0 +1,105 @@
+---
+documentclass: jss
+author:
+  - name: Boyi Guo
+    affiliation: University of Alabama at Birmingham
+    # use this syntax to add text on several lines
+    address: |
+      | 1665 University Blvd 
+      | Birmingham, AL 35294-0002   USA
+    email: \email{boyiguo1@uab.edu}
+    url: http://boyiguo1.github.io
+  - name: Nengjun Yi
+    affiliation: University of Alabama at Birmingham
+    # use this syntax to add text on several lines
+    address: |
+      | 1665 University Blvd 
+      | Birmingham, AL 35294-0002   USA
+    email: \email{nyi@uab.edu}
+    # To add another line, use \AND at the end of the previous one as above
+title:
+  formatted: "The R Package \\pkg{BHAM}: Fast and Scalable Bayeisan Hierarchical Additive Model for High-dimensional Data"
+  # If you use tex in the formatted title, also supply version without
+  plain:     "The R Package BHAM: Fast and Scalable Bayeisan Hierarchical Additive Model for High-dimensional Data"
+  # For running headers, if needed
+  short:     "\\pkg{BHAM}: Bayeisan Hierarchical Additive Model"
+abstract: >
+  The abstract of the article.
+keywords:
+  # at least one keyword must be supplied
+  formatted: [keywords, not capitalized, "\\proglang{Java}"]
+  plain:     [keywords, not capitalized, Java]
+preamble: >
+  \usepackage{amsmath}
+output: rticles::jss_article
+---
+
+```{r, setup, include=FALSE}
+options(prompt = 'R> ', continue = '+ ')
+
+library(targets)
+
+tar_read(child_rmds)
+```
+
+# Introduction
+
+# Bayesian Hierarchical Additive Model
+
+## Gerenalized Additive Model
+
+## Cox Proportional Hazard Model
+
+# R Functions
+## Model fitting
+### High-dimension Smoothing Formula
+```{r}
+x <- 1:10
+x
+```
+### Model Fitting
+
+### Covariate Adjustment
+
+## Model Summary
+### Functional Selection
+
+### Curve Plotting
+
+### Model Performance
+
+# Metabolomics Data Analysis with \proglang{BHAM} {short-title="Metabolomics Data Analysis with BHAM" #sec:analysis}
+
+## Contious Outcome
+
+## Binary Outcome
+
+## Survival Outcome
+
+# Conclusion
+
+This template demonstrates some of the basic LaTeX that you need to know to create a JSS article.
+
+## Code formatting
+
+In general, don't use Markdown, but use the more precise LaTeX commands instead:
+
+* \proglang{Java}
+* \pkg{plyr}
+
+One exception is inline code, which can be written inside a pair of backticks (i.e., using the Markdown syntax).
+
+If you want to use LaTeX commands in headers, you need to provide a `short-title` attribute. You can also provide a custom identifier if necessary. See the header of Section \ref{r-code} for example.
+
+# \proglang{R} code {short-title="R code" #r-code}
+
+Can be inserted in regular R markdown blocks.
+
+
+
+## Features specific to \pkg{rticles} {short-title="Features specific to rticles"}
+
+* Adding short titles to section headers is a feature specific to \pkg{rticles} (implemented via a Pandoc Lua filter). This feature is currently not supported by Pandoc and we will update this template if [it is officially supported in the future](https://github.com/jgm/pandoc/issues/4409).
+* Using the `\AND` syntax in the `author` field to add authors on a new line. This is a specific to the `rticles::jss_article` format.
+
+# Reference
