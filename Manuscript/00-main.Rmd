@@ -42,7 +42,8 @@ library(targets)
 tar_read(child_rmds)
 ```
 
-# Introduction
+```{r intro_sec, child = "01-intro.Rmd"}
+```
 
 # Bayesian Hierarchical Additive Model
 

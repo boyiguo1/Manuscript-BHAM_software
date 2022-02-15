@@ -18,6 +18,7 @@ Additive Model for High-dimensional Data}
 Additive Model for High-dimensional Data}
 \Shorttitle{\pkg{BHAM}: Bayeisan Hierarchical Additive Model}
 
+
 \Abstract{
 The abstract of the article.
 }
@@ -48,16 +49,51 @@ Birmingham, AL 35294-0002 USA\\
   
   }
 
+% Pandoc syntax highlighting
+
 % Pandoc citation processing
 
-% Pandoc header
 
 \usepackage{amsmath}
 
 \begin{document}
 
-\hypertarget{introduction}{%
-\section{Introduction}\label{introduction}}
+\section{Introduction}
+
+Growing interest in fitting flexible and interpretable models,
+particular in high-dimensional data analysis, for the purpose of
+variable selection and predictive modelling.
+
+Characteristic of these software includes: scalability, fast
+computation, and model flexibility and implementation easiness.
+
+\subsection{Literature Review}
+
+We enlist current available packages that have similar functionality,
+i.e.~modeling to the best of our knowledge. To note, we don't list
+packages that are unable of handling high-dimensional data, for example
+the well known R package \texttt{mgcv}, and high-dimensional packages
+that requires extra steps to construct the design matrix of functional
+form of predictors (Such implementation can be found with grouped sparse
+models, for example \texttt{SGL}.)
+
+\subsubsection{Generalized Additive Model}
+\begin{itemize}
+\item \texttt{COSSO}
+\item \texttt{spikeSlabGAM}
+\item \texttt{sparseGAM}
+\end{itemize}
+
+\subsubsection{Additive Cox Proportional Hazard Model}
+\begin{itemize}
+\item \texttt{COSSO}
+\item \texttt{tfCox}
+\end{itemize}
+
+In this article, we focus on the packages that can directly construct
+additive models for high-dimensional data anlaysis, instead of requiring
+additional step of constructing design matrix of functional form of the
+variables before fitting a sparse model.
 
 \hypertarget{bayesian-hierarchical-additive-model}{%
 \section{Bayesian Hierarchical Additive

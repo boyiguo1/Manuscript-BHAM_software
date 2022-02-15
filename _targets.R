@@ -14,7 +14,7 @@ tar_plan(
   # * Child File Paths
   tar_files(child_rmds,
             c(
-              # "./Manuscript/01-intro.Rmd",
+              "./Manuscript/01-intro.Rmd",
               # "./Manuscript/02-method.Rmd",
               # "./Manuscript/03-sim.Rmd",
               # "./Manuscript/04-real_data.Rmd",
