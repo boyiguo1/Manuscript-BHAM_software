@@ -74,12 +74,35 @@ Birmingham, AL 35294-0002 USA\\
 
 \section{Introduction}
 
-Growing interest in fitting flexible and interpretable models,
-particular in high-dimensional data analysis, for the purpose of
-variable selection and predictive modelling.
+High-dimensional statistics has been an indispensable area of research
+for its high impact in molecular and clinical data analysis. In recent
+year, there are continuous efforts to make high-dimensional models more
+flexible and interpretable, aiming to capture more complex signals. One
+particular family of such flexible and interpretable models is the
+additive models where predictors are included in a model in their
+functional forms. The additive models can help select predictors who
+have linear or nonlinear effects and provide more accurate prediction
+when nonlinear effects exist. Guo et al.~developed Bayesian hiarchical
+additive models to analyze continous, categorical and survival outcomes,
+and demonstrated improved prediction performance compare to the
+state-of-the-art additive models. In this article, we introduce the R
+package \texttt{BHAM} that implements the spike-and-slab LASSO additive
+models and computationally efficient algorithms to fit these models.
 
-Characteristic of these software includes: scalability, fast
-computation, and model flexibility and implementation easiness.
+The package \texttt{BHAM} provides functions for setting up and fitting
+various spike-and-slab LASSO additive models, including generalized
+additive models for various continuous and discrete otucoems and Cox
+survival models for censored survival outcomes. These functions are
+extended from previously published Bayesian Hierarchical linear models
+\texttt{BhGLM}, and develop upon commonly used R functions \texttt{s} in
+\texttt{mgcv} to construct additive functions. Hence, the proposed
+models shares similar syntax from well-developed packages and provide
+powerful feasures f these standard tools. The sytax can be easily
+followed and provide user friendliness. In addition, the algorithms
+implemented in \texttt{BHAM} is easily scalable, particularly suitable
+for fitting high-dimensional models. In the package, we also provide a
+series utility functions, for example . Hence, BHAM provides xxxx and is
+helpful for xxx.
 
 \subsection{Literature Review}
 
@@ -128,114 +151,12 @@ proporitonal hazards interpretation, for example \cite{Marra2021}
 provides a link-based survival additive model for mixed censoring in
 package \texttt{GJRM}.
 
-\hypertarget{bayesian-hierarchical-additive-model}{%
-\section{Bayesian Hierarchical Additive
-Model}\label{bayesian-hierarchical-additive-model}}
+\section{Models and algorithms}
 
-\hypertarget{gerenalized-additive-model}{%
-\subsection{Gerenalized Additive
-Model}\label{gerenalized-additive-model}}
+\section{Features}
 
-\hypertarget{cox-proportional-hazard-model}{%
-\subsection{Cox Proportional Hazard
-Model}\label{cox-proportional-hazard-model}}
-
-\hypertarget{r-functions}{%
-\section{R Functions}\label{r-functions}}
-
-\hypertarget{model-fitting}{%
-\subsection{Model fitting}\label{model-fitting}}
-
-\hypertarget{high-dimension-smoothing-formula}{%
-\subsubsection{High-dimension Smoothing
-Formula}\label{high-dimension-smoothing-formula}}
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> x <- 1:10
-R> x
-\end{CodeInput}
-\begin{CodeOutput}
- [1]  1  2  3  4  5  6  7  8  9 10
-\end{CodeOutput}
-\end{CodeChunk}
-
-\hypertarget{model-fitting-1}{%
-\subsubsection{Model Fitting}\label{model-fitting-1}}
-
-\hypertarget{covariate-adjustment}{%
-\subsubsection{Covariate Adjustment}\label{covariate-adjustment}}
-
-\hypertarget{model-summary}{%
-\subsection{Model Summary}\label{model-summary}}
-
-\hypertarget{functional-selection}{%
-\subsubsection{Functional Selection}\label{functional-selection}}
-
-\hypertarget{curve-plotting}{%
-\subsubsection{Curve Plotting}\label{curve-plotting}}
-
-\hypertarget{model-performance}{%
-\subsubsection{Model Performance}\label{model-performance}}
-
-\section[Metabolomics Data Analysis with BHAM]{Metabolomics Data
-Analysis with \proglang{BHAM}}\label{sec:analysis}
-
-\hypertarget{contious-outcome}{%
-\subsection{Contious Outcome}\label{contious-outcome}}
-
-\hypertarget{binary-outcome}{%
-\subsection{Binary Outcome}\label{binary-outcome}}
-
-\hypertarget{survival-outcome}{%
-\subsection{Survival Outcome}\label{survival-outcome}}
-
-\hypertarget{conclusion}{%
-\section{Conclusion}\label{conclusion}}
-
-This template demonstrates some of the basic LaTeX that you need to know
-to create a JSS article.
-
-\hypertarget{code-formatting}{%
-\subsection{Code formatting}\label{code-formatting}}
-
-In general, don't use Markdown, but use the more precise LaTeX commands
-instead:
-
-\begin{itemize}
-\item
-  \proglang{Java}
-\item
-  \pkg{plyr}
-\end{itemize}
-
-One exception is inline code, which can be written inside a pair of
-backticks (i.e., using the Markdown syntax).
-
-If you want to use LaTeX commands in headers, you need to provide a
-\texttt{short-title} attribute. You can also provide a custom identifier
-if necessary. See the header of Section \ref{r-code} for example.
-
-\section[R code]{\proglang{R} code}\label{r-code}
-
-Can be inserted in regular R markdown blocks.
-
-\subsection[Features specific to rticles]{Features specific to
-\pkg{rticles}}\label{features-specific-to}
-
-\begin{itemize}
-\tightlist
-\item
-  Adding short titles to section headers is a feature specific to
-  \pkg{rticles} (implemented via a Pandoc Lua filter). This feature is
-  currently not supported by Pandoc and we will update this template if
-  \href{https://github.com/jgm/pandoc/issues/4409}{it is officially
-  supported in the future}.
-\item
-  Using the \texttt{\textbackslash{}AND} syntax in the \texttt{author}
-  field to add authors on a new line. This is a specific to the
-  \texttt{rticles::jss\_article} format.
-\end{itemize}
+\clearpage
+\section{Reference}
 
 
 
