@@ -1,7 +1,7 @@
 \section{Introduction}
-Growing interest in fitting flexible and interpretable models, particular in high-dimensional data analysis, for the purpose of variable selection and predictive modelling. 
+High-dimensional statistics has been an indispensable area of research for its high impact in molecular and clinical data analysis. In recent year, there are continuous efforts to make high-dimensional models more flexible and interpretable, aiming to capture more complex signals. One particular family of such flexible and interpretable models is the additive models where predictors are included in a model in their functional forms. The additive models can help select predictors who have linear or nonlinear effects and provide more accurate prediction when nonlinear effects exist. Guo et al. developed Bayesian hiarchical additive models to analyze continous, categorical and survival outcomes, and demonstrated improved prediction performance compare to the state-of-the-art additive models. In this article, we introduce the R package \texttt{BHAM} that implements the spike-and-slab LASSO additive models and computationally efficient algorithms to fit these models.
 
-Characteristic of these software includes: scalability, fast computation, and model flexibility and implementation easiness. 
+The package \texttt{BHAM} provides functions for setting up and fitting various spike-and-slab LASSO additive models, including generalized additive models for various continuous and discrete otucoems and Cox survival models for censored survival outcomes.  These functions are extended from previously published Bayesian Hierarchical linear models \texttt{BhGLM}, and develop upon commonly used R functions \texttt{s} in \texttt{mgcv} to construct additive functions. Hence, the proposed models shares similar syntax from well-developed packages and provide powerful feasures f these standard tools. The sytax can be easily followed and provide user friendliness. In addition, the algorithms implemented in \texttt{BHAM} is easily scalable, particularly suitable for fitting high-dimensional models. In the package, we also provide a series utility functions, for example . Hence, BHAM provides xxxx and is helpful for xxx.
 
 \subsection{Literature Review}
 
@@ -23,6 +23,10 @@ We enlist current available packages that have similar functionality, i.e. model
 \item \texttt{tfCox}
 \end{itemize}
 
+
+The **BHAM** package provides a scalable solution for fitting high-dimensional generalized additive model and additive Cox model using spike-and-slab LASSO priors or other regularized priors, including continuous spike-and-slab priors, Student' T priors and double exponential priors. It fits linear, logistic, poisson and Cox regression models. The specification of the additive functions follows a popular syntax implemented in [`mgcv`](https://cran.r-project.org/web/packages/mgcv/index.html). Ancillary functions are provided, including cross-validation, model summary, and visualization.
+
+
 In this article, we focus on the packages that can directly construct additive models for high-dimensional data analysis, instead of requiring additional step of constructing design matrix of functional form of the variables before fitting a sparse model. 
 
-There are other methods to model survival outcome and provides proporitonal hazards interpretation, for example \cite{Marra2021} provides a link-based survival additive model for mixed censoring in package \textt{GJRM}.
+There are other methods to model survival outcome and provides proporitonal hazards interpretation, for example \cite{Marra2021} provides a link-based survival additive model for mixed censoring in package \texttt{GJRM}.

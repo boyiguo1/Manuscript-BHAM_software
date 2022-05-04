@@ -20,11 +20,25 @@ Additive Model for High-dimensional Data}
 
 
 \Abstract{
-The abstract of the article.
+\textbackslash pkg\{BHAM\} is a freely avaible R pakcage that implments
+Bayesian hierarchical additive models for high-dimensional clinical and
+genomic data. The package includes functions that generlized additive
+model, and Cox additive model with the spike-and-slab LASSO prior. These
+functions implements scalable and stable algorithms to estimate
+parameters. \textbackslash pkg\{BHAM\} also provides utility functions
+to construct additive models in high dimensional settings, select
+optimal models, summarize bi-level variable selection results, and
+visualize nonlinear effects. The package can facilitate flexible
+modeling of large-scale molecular data, i.e.~detecting succeptable
+variables and inforing disease diagnostic and prognostic. In this
+article, we describe the models, algorithms and related features
+implemented in \textbackslash pkg\{BHAM\}. The package is freely
+avaiable via the public GitHub repository
+\url{https://github.com/boyiguo1/BHAM}.
 }
 
-\Keywords{keywords, not capitalized, \proglang{Java}}
-\Plainkeywords{keywords, not capitalized, Java}
+\Keywords{additive model, spike-and-slab LASSO, scalable}
+\Plainkeywords{additive model, spike-and-slab LASSO, scalable}
 
 %% publication information
 %% \Volume{50}
@@ -77,6 +91,9 @@ that requires extra steps to construct the design matrix of functional
 form of predictors (Such implementation can be found with grouped sparse
 models, for example \texttt{SGL}.)
 
+\cite{Scheipl2013} Summarized the software development of additive
+models in high-dimensional data analysis before 2013.
+
 \subsubsection{Generalized Additive Model}
 \begin{itemize}
 \item \texttt{COSSO}
@@ -90,10 +107,26 @@ models, for example \texttt{SGL}.)
 \item \texttt{tfCox}
 \end{itemize}
 
+The \textbf{BHAM} package provides a scalable solution for fitting
+high-dimensional generalized additive model and additive Cox model using
+spike-and-slab LASSO priors or other regularized priors, including
+continuous spike-and-slab priors, Student' T priors and double
+exponential priors. It fits linear, logistic, poisson and Cox regression
+models. The specification of the additive functions follows a popular
+syntax implemented in
+\href{https://cran.r-project.org/web/packages/mgcv/index.html}{\texttt{mgcv}}.
+Ancillary functions are provided, including cross-validation, model
+summary, and visualization.
+
 In this article, we focus on the packages that can directly construct
-additive models for high-dimensional data anlaysis, instead of requiring
+additive models for high-dimensional data analysis, instead of requiring
 additional step of constructing design matrix of functional form of the
 variables before fitting a sparse model.
+
+There are other methods to model survival outcome and provides
+proporitonal hazards interpretation, for example \cite{Marra2021}
+provides a link-based survival additive model for mixed censoring in
+package \texttt{GJRM}.
 
 \hypertarget{bayesian-hierarchical-additive-model}{%
 \section{Bayesian Hierarchical Additive
