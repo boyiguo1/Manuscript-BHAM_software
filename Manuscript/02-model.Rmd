@@ -1,2 +1,15 @@
 \section{Models and algorithms}
 
+In this section, we describe the Bayeisan hiearchical additive model that \texttt{BHAM} implements. The basic idea is to impose the two-part spike-and-slab LASSO prior \cite{guo2022} on each additive function in the model. The choices of model includes generalized additive model and Cox proportional hazard model. The proposed two-part spike-and-slab LASSO prior consists of a spike-and-slab LASSO prior for the linear space coefficient $\beta_j$ of a additive function $B_j(X_j)$ of the $j$th variables, and a modified group spike-and-slab LASSO prior for the nonlinear space coefficients $\beta_{jk}^\tp, k = 1,..., K_j$ of the $j$th additive function.
+\begin{align}
+  \beta_{j} | \gamma_{j},s_0,s_1 &\sim (1-\gamma_{j}) DE(0, s_0) + \gamma_{j} DE(0, s_1)\nonumber \\
+  \beta^\tp_{jk} | \gamma^\tp_{j},s_0,s_1 &\simiid (1-\gamma_{j}^\tp) DE(0, s_0) + \gamma_{j}^\tp DE(0, s_1), k=1,\dots, K_j.
+\end{align}
+To note, the model matrix of the additive function undergoes a reparameterization process that absorbs the smoothing penalty via eigendecomposition. Meanwhile, the reparameterization also isolate the linear and nonlinear spaces of the additive function, allowing different shrinkages on the two spaces and motivates signal selection via the linear space and function smoothing of the nonlinear space. The spike-and-slab prior use the binary indicator $\gamma$ to indicate if the the corresponding variable is included in the model. Nevertheless, this selection finalized based on soft-thresholding. the spike-and-slab LASSO prior makes this selection process easier by shrinking the coefficient to exactly 0. In the two-part SSL prior, each  additive function have two indicators $\gamma_{j}$ and  $\gamma^\tp_{j}$, controlling the linear and nonlinear component selection. Effect hierarchy was implemented via the conditional priors of to ensure the the linear component is more likely to be selected than the nonlinear components.
+\begin{align}
+&\gamma_{j} | \theta_j \sim Bin(1, \theta_j) & & 
+&\gamma_{j}^\tp | \gamma_{j}, \theta_j \sim Bin(1, \gamma_{j}\theta_j).
+\end{align}
+The inclusion probability parameter $\theta_j$ have a beta prior to allow adaptive shrinkage.
+
+To fit the model in a efficient and scalable fashion, we implement the EM-cooridnate descent algorithm.
