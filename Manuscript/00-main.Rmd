@@ -34,6 +34,11 @@ preamble: >
 output: rticles::jss_article
 ---
 
+\newcommand{\pr}{\text{Pr}}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\tp}{*}
+\newcommand{\simiid}{\overset{\text{iid}}{\sim}}
+
 ```{r, setup, include=FALSE}
 options(prompt = 'R> ', continue = '+ ')
 

@@ -72,6 +72,11 @@ Birmingham, AL 35294-0002 USA\\
 
 \begin{document}
 
+\newcommand{\pr}{\text{Pr}}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\tp}{*}
+\newcommand{\simiid}{\overset{\text{iid}}{\sim}}
+
 \section{Introduction}
 
 High-dimensional statistics has been an indispensable area of research
@@ -153,7 +158,64 @@ package \texttt{GJRM}.
 
 \section{Models and algorithms}
 
+In this section, we describe the Bayeisan hiearchical additive model
+that \texttt{BHAM} implements. The basic idea is to impose the two-part
+spike-and-slab LASSO prior \cite{guo2022} on each additive function in
+the model. The choices of model includes generalized additive model and
+Cox proportional hazard model. The proposed two-part spike-and-slab
+LASSO prior consists of a spike-and-slab LASSO prior for the linear
+space coefficient \(\beta_j\) of a additive function \(B_j(X_j)\) of the
+\(j\)th variables, and a modified group spike-and-slab LASSO prior for
+the nonlinear space coefficients \(\beta_{jk}^*, k = 1,..., K_j\) of the
+\(j\)th additive function. \begin{align}
+  \beta_{j} | \gamma_{j},s_0,s_1 &\sim (1-\gamma_{j}) DE(0, s_0) + \gamma_{j} DE(0, s_1)\nonumber \\
+  \beta^*_{jk} | \gamma^*_{j},s_0,s_1 &\overset{\text{iid}}{\sim}(1-\gamma_{j}^*) DE(0, s_0) + \gamma_{j}^*DE(0, s_1), k=1,\dots, K_j.
+\end{align} To note, the model matrix of the additive function undergoes
+a reparameterization process that absorbs the smoothing penalty via
+eigendecomposition. Meanwhile, the reparameterization also isolate the
+linear and nonlinear spaces of the additive function, allowing different
+shrinkages on the two spaces and motivates signal selection via the
+linear space and function smoothing of the nonlinear space. The
+spike-and-slab prior use the binary indicator \(\gamma\) to indicate if
+the the corresponding variable is included in the model. Nevertheless,
+this selection finalized based on soft-thresholding. the spike-and-slab
+LASSO prior makes this selection process easier by shrinking the
+coefficient to exactly 0. In the two-part SSL prior, each additive
+function have two indicators \(\gamma_{j}\) and \(\gamma^*_{j}\),
+controlling the linear and nonlinear component selection. Effect
+hierarchy was implemented via the conditional priors of to ensure the
+the linear component is more likely to be selected than the nonlinear
+components. \begin{align}
+&\gamma_{j} | \theta_j \sim Bin(1, \theta_j) & & 
+&\gamma_{j}^*| \gamma_{j}, \theta_j \sim Bin(1, \gamma_{j}\theta_j).
+\end{align} The inclusion probability parameter \(\theta_j\) have a beta
+prior to allow adaptive shrinkage.
+
+To fit the model in a efficient and scalable fashion, we implement the
+EM-coordinate descent algorithm. The EM-coordinant descent algorithm
+estimates maximum a posteriori of the coefficients by optimizing the log
+joint posterior density function. The algorithm re-writes the
+spike-and-slab LASSO prior as a double exponential distribution with
+conditional scale parameter, and leverages the relationship between
+double exponential prior and \(l_1\) penalty. Hence, the log joint
+posterior density function can be expressed as the summation of a
+\(l_1\) penalized likelihood function and log beta posterior density.
+Nevertheless, the nuances parameters \(\boldsymbol{\gamma}\) are unknown
+and requires the EM algorithm to address. In each iterations of the EM
+procedure, we update the expectation of the log joint posterior density
+function with respect to the nusance parameters, calculate the penalties
+based on the estimation from previous iteration, and optimize the
+penalized likelihood and the posterior density with coordinate descent
+algorithm and closed-form calculation for the coefficients. The process
+iterates until convergence. Cross-validation is used to choose the
+optimal model. We defer \cite{guo2022, guo2022b}to for full description
+of GAM algorithm and Cox additive model algorithm.
+
 \section{Features}
+
+In this section, we demonstrate how to fit
+
+\section{Discussion}
 
 \clearpage
 \section{Reference}
