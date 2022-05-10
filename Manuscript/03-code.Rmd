@@ -18,8 +18,8 @@ devtools::install_github("boyiguo1/BHAM", build_vignettes = FALSE)
 You can also set `build_vignettes=TRUE` but this will slow down the installation drastically (the vignettes can always be accessed online anytime at [boyiguo1.github.io/BHAM/articles](https://boyiguo1.github.io/BHAM/articles)).
 
 \subsection{Preliminaries}
-We write a function that follows the data generating equation from Bai (citation). The outcome distribution could come from one of Gaussian, Poisson, or Binomial distributions. Please see (function link) here. Note here, the data output from the the simulation function is "raw" data. In order to have the final design matrix for analysis, you need to set up the spline functions of your preference via a data frame (see example in ), and use the function `construct_smooth_data`.
-
+We use a simulated data set to demonstrate our package. The data generating mechanism is motivated by Bai (citation) and programmed in the function \texttt{sim_Bai}: we assume there are $p=10$ predictors where the first four predictors have effects on the outcome (see functions below), and the rest of predictors don't, i.e $B_j(x_j) = 0, j = 5, \dots, p$. [TODO: Insert functions here on what the equations are]. 
+With the data generating mechanism, we simulate two datasets with the binary outcome from Bernoulli trials with logit link function. To note, the function \texttt{sim_Bai} can also simulate Gaussian and Poisson outcomes using the same data generating mechanism. The sample sizes of these two datasets are 500 and 1000 for training and testing respectively. The following code section creates the training and testing datasets.
 ```{r}
 library(BHAM)
 set.seed(1) ## simulate some data... 
@@ -29,13 +29,13 @@ p <- 10
 # Train Data
 train_dat <- sim_Bai(n_train, p)
 dat <- train_dat$dat %>% data.frame
-theta <- train_dat$theta
 
 # Test Data
 test_tmp <- sim_Bai(n_test, p)
 test_dat <- test_tmp$dat %>% data.frame
-test_theta <- test_tmp$theta
 ```
+[TODO: Introduce the head of datasets].
+
 
 
 
