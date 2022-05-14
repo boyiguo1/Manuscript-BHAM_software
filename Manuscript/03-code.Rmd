@@ -9,17 +9,15 @@ In this section, we describe to the users the workflow for of fitting a high-dim
 To install the latest development version of `BHAM` package from **GitHub**, type the following command in R console:
 
 ```{r eval = FALSE}
-if (!require(devtools)) {
-install.packages("devtools")
-}
-devtools::install_github("boyiguo1/BHAM", build_vignettes = FALSE)
+if (!require(devtools)) install.packages("devtools")
+if(!require(BHAM)) devtools::install_github("boyiguo1/BHAM", build_vignettes = FALSE)
 ```
 
 You can also set `build_vignettes=TRUE` but this will slow down the installation drastically (the vignettes can always be accessed online anytime at [boyiguo1.github.io/BHAM/articles](https://boyiguo1.github.io/BHAM/articles)).
 
 \subsection{Preliminaries}
-We use a simulated data set to demonstrate our package. The data generating mechanism is motivated by Bai (citation) and programmed in the function \texttt{sim_Bai}: we assume there are $p=10$ predictors where the first four predictors have effects on the outcome (see functions below), and the rest of predictors don't, i.e $B_j(x_j) = 0, j = 5, \dots, p$. [TODO: Insert functions here on what the equations are]. 
-With the data generating mechanism, we simulate two datasets with the binary outcome from Bernoulli trials with logit link function. To note, the function \texttt{sim_Bai} can also simulate Gaussian and Poisson outcomes using the same data generating mechanism. The sample sizes of these two datasets are 500 and 1000 for training and testing respectively. The following code section creates the training and testing datasets.
+We use a simulated data set to demonstrate our package. The data generating mechanism is motivated by Bai (citation) and programmed in the function `sim_Bai`: we assume there are $p=10$ predictors where the first four predictors have effects on the outcome (see functions below), and the rest of predictors don't, i.e $B_j(x_j) = 0, j = 5, \dots, p$. [TODO: Insert functions here on what the equations are]. 
+With the data generating mechanism, we simulate two datasets with the binary outcome from Bernoulli trials with logit link function. To note, the function `sim_Bai` can also simulate Gaussian and Poisson outcomes using the same data generating mechanism. The sample sizes of these two datasets are 500 and 1000 for training and testing respectively. The following code section creates the training and testing datasets.
 ```{r}
 library(BHAM)
 set.seed(1) ## simulate some data... 
@@ -34,14 +32,14 @@ dat <- train_dat$dat %>% data.frame
 test_tmp <- sim_Bai(n_test, p)
 test_dat <- test_tmp$dat %>% data.frame
 ```
-[TODO: Introduce the head of datasets].
+The first ten observation of the data set look like below
+```{r echo = FALSE}
+head(dat, 10)
+```
 
 
-
-
-\subsection{Make Design Matrix}
-#### Set up Spline function
-Since our models are primarily designed for high-dimensional applications. Hence, we are mindful about how to formulate the regression equation. Our solution here is to use a data frame which contains the necessary components of a spline function, in the format of `Var` `Func`, `Args`, which later passed to a parser function, which will assemble the regression equation for you. We believe such automation process, implemented in `construct_smooth_data`, will ease the task load to set up the regression formula, when the number of spline components grows to tens or hundreds.
+\subsection{Set up Design Matrix of additive functions}
+Given the raw data, we would like to translate the additive functions to the their matrix form. The challenge here is to allow a customizable and convenient way to specify the high-dimensional model. Our solution here is to use a data frame to accomodate each predictor in the raw data set, and allows each predictor have their spline function specified. There are three columns for this formulat specification data frame, including `Var` `Func`, `Args`. The `Var` column hosts the variable name; the `Func` column hosts the spline function following the commonly used generalized additive model \texttt{mgcv}; the `Args` column hosts the detail specification of the spline function. The data frame can be constructed manually for low-dimensional settings and also be manipulated easily when the number of spline components grows to tens or hundreds. See the examples below.
 
 ```{r}
 # Low-dimensional setting
@@ -60,11 +58,9 @@ mgcv_df <- data.frame(
 )
 ```
 
-#### Make Design Matrix and Prediction Matrix
-We use `smoothCon` from the package `mgcv` to construct the . Hence, our `construct_smooth_data` have the potential to work with user-defined spline functions as long as it follows `mgcv` standard. 
+After having the model specification data frame, the next task is to construct the overall design matrix. We provide a function `construct_smooth_data` to construct the design matrix for each predictor according to their spline specification iteratively, and binding all design matrices together with a systematic naming convention. The linear component of the spline function is named with the suffix `.null` and the nonlinear components are named with the suffix `.pen`. In `construct_smooth_data`, we take three steps of matrix manipulation via the `smoothCon` from the package `mgcv`: 1) linear constraints, 2) eigendecomposition of the smoothing matrix $S$ to isolate linear and nonlinear spaces, 3) scaling of the design matrix such that the coefficients are on the same scale. As we use `mgcv::smoothCon` to decode the spline specification, we carry over the ability to work with user-defined spline functions as long as it follows `mgcv` standard. 
 
-In our `construct_smooth_data`, we have taken multiple reparameterization steps via `smoothCon`: 1) linear constraints, 2) eigen decomposition of the smoothing matrix $S$ to isolate null and penalized spaces, 3) scaling of the design matrix to have unit variance for each column of the data set, i.e. bases of the design matrix.
-
+The `construct_smooth_data` function have two arguments, the model specification data frame and the raw data, and return the finalized design matrix `data` and the smooth specification functions `Smooth` which will be used to construct the design matrix of the new datasets for the prediction purpose.
 
 ```{r}
 train_sm_dat <- BHAM::construct_smooth_data(mgcv_df, dat)
@@ -72,43 +68,34 @@ train_smooth <- train_sm_dat$Smooth
 train_smooth_data <- train_sm_dat$data
 ```
 
-Due to the reparameterization in the design matrix, it creates complication with setting up the design matrix for the test data. Hence, we write an wrapping function for `PredictMat` from `mgcv`.
-
-```{r}
-train_smooth <- train_sm_dat$Smooth
-test_sm_dat <- make_predict_dat(train_sm_dat$Smooth, dat = test_dat)
-```
-
-
-
 ## Fitting the Bayesian Hierarchical model
 The model fitting  function is similar to 
 
-```{r}
+```{r eval = F}
 bham_mdl <- bamlasso(x = train_smooth_data, y = dat$y, family = "binomial", group = make_group(names(train_smooth_data)))
 ```
 
 
 ## Tuning via Cross-validation
-```{r}
+```{r eval = F}
 s0_seq <- seq(0.005, 0.1, 0.01)
 cv_res <- tune.bgam(bham_mdl, nfolds = 5, s0= s0_seq, verbose = FALSE)
 ```
 
 ## Fit Optimal model
-```{r}
+```{r eval = F}
 s0_min <- cv_res$s0[which.min(cv_res$deviance)]
 bham_final <- bamlasso(x = train_smooth_data, y = dat$y, family = "binomial", group = make_group(names(train_smooth_data)),
                        ss = c(s0_min, 0.5))
 ```
 
 ## Variable selecrtion
-```{r}
+```{r eval = F}
 bamlasso_vs_part <- bamlasso_var_selection(bham_final)
 ```
 
 ### Curv Plotting
-```{r}
+```{r eval = F}
 plot_smooth_term(bham_final, "x1", train_smooth,
                      min = min(dat[, "x1"])-0.1,
                      max = max(dat[, "x1"]) + 0.1)
@@ -116,7 +103,15 @@ plot_smooth_term(bham_final, "x1", train_smooth,
 
 ## Prediction
 
-```{r}
+Due to the reparameterization in the design matrix, it creates complication with setting up the design matrix for the test data. Hence, we write an wrapping function for `PredictMat` from `mgcv`.
+
+```{r eval = F}
+train_smooth <- train_sm_dat$Smooth
+test_sm_dat <- make_predict_dat(train_sm_dat$Smooth, dat = test_dat)
+```
+
+
+```{r eval = F}
 if(!require("devtools")) install.packages("devtools")
 if(!require("BhGLM")) devtools::install_github("nyiuab/BhGLM ")
 
