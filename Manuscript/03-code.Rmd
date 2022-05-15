@@ -60,7 +60,7 @@ mgcv_df <- data.frame(
 
 After having the model specification data frame, the next task is to construct the overall design matrix. We provide a function `construct_smooth_data` to construct the design matrix for each predictor according to their spline specification iteratively, and binding all design matrices together with a systematic naming convention. The linear component of the spline function is named with the suffix `.null` and the nonlinear components are named with the suffix `.pen`. In `construct_smooth_data`, we take three steps of matrix manipulation via the `smoothCon` from the package `mgcv`: 1) linear constraints, 2) eigendecomposition of the smoothing matrix $S$ to isolate linear and nonlinear spaces, 3) scaling of the design matrix such that the coefficients are on the same scale. As we use `mgcv::smoothCon` to decode the spline specification, we carry over the ability to work with user-defined spline functions as long as it follows `mgcv` standard. 
 
-The `construct_smooth_data` function have two arguments, the model specification data frame and the raw data, and return the finalized design matrix `data` and the smooth specification functions `Smooth` which will be used to construct the design matrix of the new datasets for the prediction purpose.
+The `construct_smooth_data` function have two arguments, the model specification data frame and the raw data, and return the finalized design matrix `data` and the smooth specification functions `Smooth` which will later be used to construct the design matrix of the new datasets for the prediction purpose.
 
 ```{r}
 train_sm_dat <- BHAM::construct_smooth_data(mgcv_df, dat)
@@ -68,15 +68,17 @@ train_smooth <- train_sm_dat$Smooth
 train_smooth_data <- train_sm_dat$data
 ```
 
-## Fitting the Bayesian Hierarchical model
-The model fitting  function is similar to 
+\subsection{Fitting the Bayesian Hierarchical model}
+With the additive function design matrix constructed, we are ready to fit the Bayesian hierarchical model with the two-part spike-and-slab LASSO prior for smooth function. The model fitting algorithm, implementing the EM-coordinate descent algorithm, is wrapped in the function `bamlasso`. The necessary arguments are `x` for the design matrix, `y` for the outcome, `family` for the family distribution of the outcome, and `group` for the additive functions. We provide a utility function `make_group` to automate the grouping, taking the column names from the design matrix. It generates a list of vectors containing the bases of each additive function. Another important argument is `ss`, which is a vector of length 2 for the spike and slab components of the spike-and-slab LASSO scale parameters, i.e. the mixture double exponential distribution. The argument `ss` defaults to a spike double exponential density with scale parameter 0.04, and a slab double exponential density with scale parameter 0.5, which is a general starting prior based on empirical evidence.
 
-```{r eval = F}
-bham_mdl <- bamlasso(x = train_smooth_data, y = dat$y, family = "binomial", group = make_group(names(train_smooth_data)))
+```{r}
+bham_mdl <- bamlasso(x = train_smooth_data, y = dat$y,
+                     family = "binomial",
+                     group = make_group(names(train_smooth_data)))
 ```
+\subsubsection{Tuning via Cross-validation}
+With the specified arguments, the function `bamlasso` returns the fitted model wrapped in list.
 
-
-## Tuning via Cross-validation
 ```{r eval = F}
 s0_seq <- seq(0.005, 0.1, 0.01)
 cv_res <- tune.bgam(bham_mdl, nfolds = 5, s0= s0_seq, verbose = FALSE)
