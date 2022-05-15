@@ -358,8 +358,8 @@ spline functions as long as it follows \texttt{mgcv} standard.
 The \texttt{construct\_smooth\_data} function have two arguments, the
 model specification data frame and the raw data, and return the
 finalized design matrix \texttt{data} and the smooth specification
-functions \texttt{Smooth} which will be used to construct the design
-matrix of the new datasets for the prediction purpose.
+functions \texttt{Smooth} which will later be used to construct the
+design matrix of the new datasets for the prediction purpose.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -369,31 +369,113 @@ R> train_smooth_data <- train_sm_dat$data
 \end{CodeInput}
 \end{CodeChunk}
 
-\hypertarget{fitting-the-bayesian-hierarchical-model}{%
-\subsection{Fitting the Bayesian Hierarchical
-model}\label{fitting-the-bayesian-hierarchical-model}}
+\subsection{Fitting the Bayesian Hierarchical model}
 
-The model fitting function is similar to
+With the additive function design matrix constructed, we are ready to
+fit the Bayesian hierarchical model with the two-part spike-and-slab
+LASSO prior for smooth function. The model fitting algorithm,
+implementing the EM-coordinate descent algorithm, is wrapped in the
+function \texttt{bamlasso}. The necessary arguments are \texttt{x} for
+the design matrix, \texttt{y} for the outcome, \texttt{family} for the
+family distribution of the outcome, and \texttt{group} for the additive
+functions. We provide a utility function \texttt{make\_group} to
+automate the grouping, taking the column names from the design matrix.
+It generates a list of vectors containing the bases of each additive
+function. Another important argument is \texttt{ss}, which is a vector
+of length 2 for the spike and slab components of the spike-and-slab
+LASSO scale parameters, i.e.~the mixture double exponential
+distribution. The argument \texttt{ss} defaults to a spike double
+exponential density with scale parameter 0.04, and a slab double
+exponential density with scale parameter 0.5, which is a general
+starting prior based on empirical evidence.
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> bham_mdl <- bamlasso(x = train_smooth_data, y = dat$y, family = "binomial", group = make_group(names(train_smooth_data)))
+R> bham_mdl <- bamlasso(x = train_smooth_data, y = dat$y,
++                      family = "binomial",
++                      group = make_group(names(train_smooth_data)))
 \end{CodeInput}
 \end{CodeChunk}
 
-\hypertarget{tuning-via-cross-validation}{%
-\subsection{Tuning via
-Cross-validation}\label{tuning-via-cross-validation}}
+\subsubsection{Tuning via Cross-validation}
+
+With the specified \texttt{ss} argument, the function \texttt{bamlasso}
+fit the asked model. Nevertheless, it is not necessary the optimal
+model. To select the optimal model, we employ a tuning step via cross
+validation, which is implemented in the function \texttt{tune.bgam}. The
+main arguments are the previously fitted model where the model data,
+additive function specifications are stored, a sequence of spike density
+scale parameter \(s_0\), and number of folds. The following example
+shows to use five-fold cross validation to examine a vector of \(s_0\)
+options, from 0.005 to 0.1 with 0.01 increment. Currently, we don't
+consider to examine values of the slab density scale parameter \(s_1\)
+for computational economy, as the previously literature shows \(s_1\)
+has modest impact on the model performance. The tuning function also
+allows nested cross-validation by allowing running multiple
+cross-validation via \texttt{ncv} and user-specified folds via
+\texttt{foldid}.
 
 \begin{CodeChunk}
 \begin{CodeInput}
 R> s0_seq <- seq(0.005, 0.1, 0.01)
 R> cv_res <- tune.bgam(bham_mdl, nfolds = 5, s0= s0_seq, verbose = FALSE)
 \end{CodeInput}
+\begin{CodeOutput}
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.035 minutes 
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.006 minutes 
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.006 minutes 
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.011 minutes 
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.016 minutes 
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.009 minutes 
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.012 minutes 
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.007 minutes 
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.005 minutes 
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.005 minutes 
+\end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{fit-optimal-model}{%
-\subsection{Fit Optimal model}\label{fit-optimal-model}}
+The cross-validation tuning function returns different performance
+metrics, including deviance, mean squared error, mean absolute error,
+area under the curve, misclassifcation for binary outcome, and
+concordance statistics for survival outcome. The following shows the
+cross-validated performance metrics for the first five values of the
+\(s_0\) sequence using out-of-bag samples.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> head(cv_res, 5)
+\end{CodeInput}
+\begin{CodeOutput}
+     s0 deviance   auc   mse   mae misclassification
+1 0.005  435.044 0.809 0.141 0.281             0.212
+2 0.015  376.082 0.865 0.120 0.253             0.166
+3 0.025  352.728 0.883 0.111 0.238             0.148
+4 0.035  349.896 0.882 0.110 0.226             0.154
+5 0.045  346.670 0.884 0.109 0.223             0.158
+\end{CodeOutput}
+\end{CodeChunk}
+
+\subsubsection{Fit the Optimal Model}
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -403,8 +485,8 @@ R> bham_final <- bamlasso(x = train_smooth_data, y = dat$y, family = "binomial",
 \end{CodeInput}
 \end{CodeChunk}
 
-\hypertarget{variable-selecrtion}{%
-\subsection{Variable selecrtion}\label{variable-selecrtion}}
+\subsection{Model Summary}
+\subsubsection{Variable Selecrtion}
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -412,8 +494,7 @@ R> bamlasso_vs_part <- bamlasso_var_selection(bham_final)
 \end{CodeInput}
 \end{CodeChunk}
 
-\hypertarget{curv-plotting}{%
-\subsubsection{Curv Plotting}\label{curv-plotting}}
+\subsubsection{Curve Plotting}
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -423,8 +504,7 @@ R> plot_smooth_term(bham_final, "x1", train_smooth,
 \end{CodeInput}
 \end{CodeChunk}
 
-\hypertarget{prediction}{%
-\subsection{Prediction}\label{prediction}}
+\subsection{Prediction}
 
 Due to the reparameterization in the design matrix, it creates
 complication with setting up the design matrix for the test data. Hence,
@@ -449,6 +529,8 @@ R> # pred <- predict.glm(.mdl$mdl, newdata = test_sm_dat, type = "response")
 R> # measure.glm(test_dat$y, pred, family = fam_fun$family) 
 \end{CodeInput}
 \end{CodeChunk}
+
+\subsection{Other Functions}
 
 \section{Discussion}
 

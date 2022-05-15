@@ -77,33 +77,39 @@ bham_mdl <- bamlasso(x = train_smooth_data, y = dat$y,
                      group = make_group(names(train_smooth_data)))
 ```
 \subsubsection{Tuning via Cross-validation}
-With the specified arguments, the function `bamlasso` returns the fitted model wrapped in list.
+With the specified `ss` argument, the function `bamlasso` fit the asked model. Nevertheless, it is not necessary the optimal model. To select the optimal model, we employ a tuning step via cross validation, which is implemented in the function `tune.bgam`. The main arguments are the previously fitted model where the model data, additive function specifications are stored, a sequence of spike density scale parameter $s_0$, and number of folds. The following example shows to use five-fold cross validation to examine a vector of $s_0$ options, from 0.005 to 0.1 with 0.01 increment. Currently, we don't consider to examine values of the slab density scale parameter $s_1$ for computational economy, as the previously literature shows $s_1$ has modest impact on the model performance. The tuning function also allows nested cross-validation by allowing running multiple cross-validation via `ncv` and user-specified folds via `foldid`. 
 
-```{r eval = F}
+```{r}
 s0_seq <- seq(0.005, 0.1, 0.01)
 cv_res <- tune.bgam(bham_mdl, nfolds = 5, s0= s0_seq, verbose = FALSE)
 ```
+The cross-validation tuning function returns different performance metrics, including deviance, mean squared error, mean absolute error, area under the curve, misclassifcation for binary outcome, and concordance statistics for survival outcome. The following shows the cross-validated performance metrics for the first five values of the $s_0$ sequence using out-of-bag samples.
+```{r}
+head(cv_res, 5)
+```
 
-## Fit Optimal model
+
+\subsubsection{Fit the Optimal Model}
 ```{r eval = F}
 s0_min <- cv_res$s0[which.min(cv_res$deviance)]
 bham_final <- bamlasso(x = train_smooth_data, y = dat$y, family = "binomial", group = make_group(names(train_smooth_data)),
                        ss = c(s0_min, 0.5))
 ```
 
-## Variable selecrtion
+\subsection{Model Summary}
+\subsubsection{Variable Selecrtion}
 ```{r eval = F}
 bamlasso_vs_part <- bamlasso_var_selection(bham_final)
 ```
 
-### Curv Plotting
+\subsubsection{Curve Plotting}
 ```{r eval = F}
 plot_smooth_term(bham_final, "x1", train_smooth,
                      min = min(dat[, "x1"])-0.1,
                      max = max(dat[, "x1"]) + 0.1)
 ```
 
-## Prediction
+\subsection{Prediction}
 
 Due to the reparameterization in the design matrix, it creates complication with setting up the design matrix for the test data. Hence, we write an wrapping function for `PredictMat` from `mgcv`.
 
@@ -122,3 +128,5 @@ BhGLM::measure.bh(bham_final, test_sm_dat, test_dat$y)
 # pred <- predict.glm(.mdl$mdl, newdata = test_sm_dat, type = "response")
 # measure.glm(test_dat$y, pred, family = fam_fun$family) 
 ```
+
+\subsection{Other Functions}
