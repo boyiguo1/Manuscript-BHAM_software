@@ -79,7 +79,7 @@ bham_mdl <- bamlasso(x = train_smooth_data, y = dat$y,
 \subsubsection{Tuning via Cross-validation}
 With the specified `ss` argument, the function `bamlasso` fit the asked model. Nevertheless, it is not necessary the optimal model. To select the optimal model, we employ a tuning step via cross validation, which is implemented in the function `tune.bgam`. The main arguments are the previously fitted model where the model data, additive function specifications are stored, a sequence of spike density scale parameter $s_0$, and number of folds. The following example shows to use five-fold cross validation to examine a vector of $s_0$ options, from 0.005 to 0.1 with 0.01 increment. Currently, we don't consider to examine values of the slab density scale parameter $s_1$ for computational economy, as the previously literature shows $s_1$ has modest impact on the model performance. The tuning function also allows nested cross-validation by allowing running multiple cross-validation via `ncv` and user-specified folds via `foldid`. 
 
-```{r}
+```{r message=FALSE}
 s0_seq <- seq(0.005, 0.1, 0.01)
 cv_res <- tune.bgam(bham_mdl, nfolds = 5, s0= s0_seq, verbose = FALSE)
 ```
@@ -87,46 +87,69 @@ The cross-validation tuning function returns different performance metrics, incl
 ```{r}
 head(cv_res, 5)
 ```
+Here we want to caution the reader, if the performance metric varies monotonically with the candidate $s_0$ values, it would be better to examine a broader range of candidate $s_0$ values, as the sequence contains a local optimal performance where the global optimal performance is not reached yet. Using some visual aid to examine the $s_0$ and performance metric relationship would be more helpful.
 
+```{r}
+plot(cv_res$s0, cv_res$deviance)
+lines(cv_res$s0, cv_res$deviance)
+```
 
-\subsubsection{Fit the Optimal Model}
-```{r eval = F}
+With the cross-validation results, we can choose from all the candidate values of $s_0$ and select the one with the best performance using the preferred metrics. For example, we can use the $s_0$ value that gives the minimum cross-validated deviance, and re-fit the model. Hence, this would be the optimal model.
+
+```{r}
 s0_min <- cv_res$s0[which.min(cv_res$deviance)]
-bham_final <- bamlasso(x = train_smooth_data, y = dat$y, family = "binomial", group = make_group(names(train_smooth_data)),
+bham_final <- bamlasso(x = train_smooth_data, y = dat$y,
+                       family = "binomial",
+                       group = make_group(names(train_smooth_data)),
                        ss = c(s0_min, 0.5))
 ```
 
-\subsection{Model Summary}
+To note, it is a convention to use some predictive metrics to select the best performed model among all the candidate values, for both predictive purpose and variable selection purpose. However, previous literature shows that when using predictive metrics to select model for variable selection purpose, the variable selection performance may not be optimal.
+
+\subsection{Varible Selection and Curve Intropolation}
+In the proposed R package, we also provide some utility functions to provide more insights for the additive function inferences.
+
 \subsubsection{Variable Selecrtion}
-```{r eval = F}
+We provide a function to summarize the variable selection of the produced model, namely `bamlasso_var_selection`. The input of the function is a fitted BHAM model, and the output of the function is a list of two components, `parametric` and `non-parametric`. The `parametrc` component is a vector contains  the selected variables that were fitted in the model in its parameteric form, i.e. not specified via additive functions. The `non-parametric` component contains a dataframe with 3 columns, `Variable`, `Linear`, `Nonlinear`. While `Variable` column includes the variable names of selected aadditive functions, `Linear` and `Nonlinear` columns are logical vectors indicating if the linear and nonlinear components of the additive function are included in the model respectively.
+```{r}
 bamlasso_vs_part <- bamlasso_var_selection(bham_final)
 ```
-
+Here, we shows the variable selection result from previously tuned model. Since, the model didn't include any variables in their parametric form. Hence, the `parametric` is an empty vector. Meanwhile, the `nonparametric` data frame contains the bi-level selection result.
+```{r}
+bamlasso_vs_part
+```
 \subsubsection{Curve Plotting}
-```{r eval = F}
+We also provide a utility function `plot_smooth_term` to plot the estimated functions. The function takes in the fitted model, the variable name, the previously constructed smooth objective to construct the design matrix, minimum and maximum of the range of the predictors. The function outputs a `ggplot` object to show the estimated curve.
+
+```{r}
 plot_smooth_term(bham_final, "x1", train_smooth,
-                     min = min(dat[, "x1"])-0.1,
-                     max = max(dat[, "x1"]) + 0.1)
+                     min = min(dat[, "x1"]),
+                     max = max(dat[, "x1"]))
 ```
 
 \subsection{Prediction}
+To predict new datasets, we need to go through a two-step procedure as previously building the model. First of all, we need to translate the new dataset to their matrix form using the function `make_predict_dat`. This step is necessary because of the reparameterization of the design matrix. The function `make_predict_dat` is based on the function `PredictMat` from `mgcv`. The function asks for an additional input argument besides the new dataset, i.e. the Smooth object when constructing the design matrix for the training data. The output of the function is the new dataset design matrix with conformable dimension and variable name. We show the first six columns of the first five observations in the following example.
 
-Due to the reparameterization in the design matrix, it creates complication with setting up the design matrix for the test data. Hence, we write an wrapping function for `PredictMat` from `mgcv`.
-
-```{r eval = F}
+```{r}
 train_smooth <- train_sm_dat$Smooth
 test_sm_dat <- make_predict_dat(train_sm_dat$Smooth, dat = test_dat)
 ```
-
-
-```{r eval = F}
-if(!require("devtools")) install.packages("devtools")
-if(!require("BhGLM")) devtools::install_github("nyiuab/BhGLM ")
-
-BhGLM::measure.bh(bham_final, test_sm_dat, test_dat$y)
-
-# pred <- predict.glm(.mdl$mdl, newdata = test_sm_dat, type = "response")
-# measure.glm(test_dat$y, pred, family = fam_fun$family) 
+```{r echo = F}
+head(test_sm_dat[,1:6], 5)
 ```
 
-\subsection{Other Functions}
+With the new dataset in the conformable design matrix format, we can easily produce the prediction using the function `predict`. Under the hood, we use `predict.glmnet` to produce the prediction, and hence, it is robust. For the GLM, we can produce the linear predictors using `type = "link"` and the fitted probability/mean using `type = "response"`.
+
+```{r}
+bham_final$offset = 0
+pred_res <- predict(bham_final, newx = as.matrix(test_sm_dat),
+                    newoffset = 0, type = "link")
+```
+To note, we suggest to use `BhGLM::measure.bh` to provide a quick prediction performance of the new dataset.
+
+```{r eval= F}
+if(!require("devtools")) install.packages("devtools")
+if(!require("BhGLM")) devtools::install_github("nyiuab/BhGLM")
+
+BhGLM::measure.bh(bham_final, as.matrix(test_sm_dat), test_dat$y)
+```

@@ -423,34 +423,34 @@ R> cv_res <- tune.bgam(bham_mdl, nfolds = 5, s0= s0_seq, verbose = FALSE)
 \begin{CodeOutput}
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
- Cross-validation time: 0.035 minutes 
+ Cross-validation time: 0.009 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
  Cross-validation time: 0.006 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
- Cross-validation time: 0.006 minutes 
-Fitting ncv*nfolds = 5 models: 
-1 2 3 4 5 
- Cross-validation time: 0.011 minutes 
-Fitting ncv*nfolds = 5 models: 
-1 2 3 4 5 
- Cross-validation time: 0.016 minutes 
+ Cross-validation time: 0.008 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
  Cross-validation time: 0.009 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
- Cross-validation time: 0.012 minutes 
+ Cross-validation time: 0.009 minutes 
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.008 minutes 
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.01 minutes 
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.008 minutes 
+Fitting ncv*nfolds = 5 models: 
+1 2 3 4 5 
+ Cross-validation time: 0.008 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
  Cross-validation time: 0.007 minutes 
-Fitting ncv*nfolds = 5 models: 
-1 2 3 4 5 
- Cross-validation time: 0.005 minutes 
-Fitting ncv*nfolds = 5 models: 
-1 2 3 4 5 
- Cross-validation time: 0.005 minutes 
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -475,18 +475,67 @@ R> head(cv_res, 5)
 \end{CodeOutput}
 \end{CodeChunk}
 
-\subsubsection{Fit the Optimal Model}
+Here we want to caution the reader, if the performance metric varies
+monotonically with the candidate \(s_0\) values, it would be better to
+examine a broader range of candidate \(s_0\) values, as the sequence
+contains a local optimal performance where the global optimal
+performance is not reached yet. Using some visual aid to examine the
+\(s_0\) and performance metric relationship would be more helpful.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> plot(cv_res$s0, cv_res$deviance)
+R> lines(cv_res$s0, cv_res$deviance)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{/Users/boyiguo/GitHub/Manuscript-BHAM_software/BHAM_software_files/figure-latex/unnamed-chunk-9-1} \end{center}
+
+\end{CodeChunk}
+
+With the cross-validation results, we can choose from all the candidate
+values of \(s_0\) and select the one with the best performance using the
+preferred metrics. For example, we can use the \(s_0\) value that gives
+the minimum cross-validated deviance, and re-fit the model. Hence, this
+would be the optimal model.
 
 \begin{CodeChunk}
 \begin{CodeInput}
 R> s0_min <- cv_res$s0[which.min(cv_res$deviance)]
-R> bham_final <- bamlasso(x = train_smooth_data, y = dat$y, family = "binomial", group = make_group(names(train_smooth_data)),
+R> bham_final <- bamlasso(x = train_smooth_data, y = dat$y,
++                        family = "binomial",
++                        group = make_group(names(train_smooth_data)),
 +                        ss = c(s0_min, 0.5))
 \end{CodeInput}
 \end{CodeChunk}
 
-\subsection{Model Summary}
+To note, it is a convention to use some predictive metrics to select the
+best performed model among all the candidate values, for both predictive
+purpose and variable selection purpose. However, previous literature
+shows that when using predictive metrics to select model for variable
+selection purpose, the variable selection performance may not be
+optimal.
+
+\subsection{Varible Selection and Curve Intropolation}
+
+In the proposed R package, we also provide some utility functions to
+provide more insights for the additive function inferences.
+
 \subsubsection{Variable Selecrtion}
+
+We provide a function to summarize the variable selection of the
+produced model, namely \texttt{bamlasso\_var\_selection}. The input of
+the function is a fitted BHAM model, and the output of the function is a
+list of two components, \texttt{parametric} and \texttt{non-parametric}.
+The \texttt{parametrc} component is a vector contains the selected
+variables that were fitted in the model in its parameteric form,
+i.e.~not specified via additive functions. The \texttt{non-parametric}
+component contains a dataframe with 3 columns, \texttt{Variable},
+\texttt{Linear}, \texttt{Nonlinear}. While \texttt{Variable} column
+includes the variable names of selected aadditive functions,
+\texttt{Linear} and \texttt{Nonlinear} columns are logical vectors
+indicating if the linear and nonlinear components of the additive
+function are included in the model respectively.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -494,22 +543,71 @@ R> bamlasso_vs_part <- bamlasso_var_selection(bham_final)
 \end{CodeInput}
 \end{CodeChunk}
 
+Here, we shows the variable selection result from previously tuned
+model. Since, the model didn't include any variables in their parametric
+form. Hence, the \texttt{parametric} is an empty vector. Meanwhile, the
+\texttt{nonparametric} data frame contains the bi-level selection
+result.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> bamlasso_vs_part
+\end{CodeInput}
+\begin{CodeOutput}
+$Parametric
+character(0)
+
+$`Non-parametric`
+  Variable Linear Nonlinear
+1       x1  FALSE      TRUE
+2       x2  FALSE      TRUE
+3       x3   TRUE     FALSE
+4       x4  FALSE      TRUE
+5       x5  FALSE      TRUE
+6       x7  FALSE      TRUE
+7       x9  FALSE      TRUE
+8      x10  FALSE      TRUE
+\end{CodeOutput}
+\end{CodeChunk}
+
 \subsubsection{Curve Plotting}
+
+We also provide a utility function \texttt{plot\_smooth\_term} to plot
+the estimated functions. The function takes in the fitted model, the
+variable name, the previously constructed smooth objective to construct
+the design matrix, minimum and maximum of the range of the predictors.
+The function outputs a \texttt{ggplot} object to show the estimated
+curve.
 
 \begin{CodeChunk}
 \begin{CodeInput}
 R> plot_smooth_term(bham_final, "x1", train_smooth,
-+                      min = min(dat[, "x1"])-0.1,
-+                      max = max(dat[, "x1"]) + 0.1)
++                      min = min(dat[, "x1"]),
++                      max = max(dat[, "x1"]))
 \end{CodeInput}
+\begin{CodeOutput}
+`geom_smooth()` using method = 'loess' and formula 'y ~ x'
+\end{CodeOutput}
+
+
+\begin{center}\includegraphics{/Users/boyiguo/GitHub/Manuscript-BHAM_software/BHAM_software_files/figure-latex/unnamed-chunk-13-1} \end{center}
+
 \end{CodeChunk}
 
 \subsection{Prediction}
 
-Due to the reparameterization in the design matrix, it creates
-complication with setting up the design matrix for the test data. Hence,
-we write an wrapping function for \texttt{PredictMat} from
-\texttt{mgcv}.
+To predict new datasets, we need to go through a two-step procedure as
+previously building the model. First of all, we need to translate the
+new dataset to their matrix form using the function
+\texttt{make\_predict\_dat}. This step is necessary because of the
+reparameterization of the design matrix. The function
+\texttt{make\_predict\_dat} is based on the function \texttt{PredictMat}
+from \texttt{mgcv}. The function asks for an additional input argument
+besides the new dataset, i.e.~the Smooth object when constructing the
+design matrix for the training data. The output of the function is the
+new dataset design matrix with conformable dimension and variable name.
+We show the first six columns of the first five observations in the
+following example.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -519,20 +617,72 @@ R> test_sm_dat <- make_predict_dat(train_sm_dat$Smooth, dat = test_dat)
 \end{CodeChunk}
 
 \begin{CodeChunk}
+\begin{CodeOutput}
+     x1.pen1     x1.pen2    x1.pen3     x1.pen4    x1.pen5   x1.null1
+1  0.2105822 -0.51339049 -0.7087016  1.48599984 -1.6282845 -0.6187856
+2  0.1401345 -0.04244866  0.4101826 -2.49600416 -0.5234851  1.2762868
+3 -0.1157559 -0.28695472  0.3280699  0.08111065  9.0232660  3.6778234
+4 -0.1551403 -0.57575563  1.1032603 -2.71644734  1.1193043  1.8444025
+5  0.1841429 -0.50899800 -0.7593021  1.41065378 -1.6744694 -0.5829544
+\end{CodeOutput}
+\end{CodeChunk}
+
+With the new dataset in the conformable design matrix format, we can
+easily produce the prediction using the function \texttt{predict}. Under
+the hood, we use \texttt{predict.glmnet} to produce the prediction, and
+hence, it is robust. For the GLM, we can produce the linear predictors
+using \texttt{type\ =\ "link"} and the fitted probability/mean using
+\texttt{type\ =\ "response"}.
+
+\begin{CodeChunk}
 \begin{CodeInput}
-R> if(!require("devtools")) install.packages("devtools")
-R> if(!require("BhGLM")) devtools::install_github("nyiuab/BhGLM ")
-R> 
-R> BhGLM::measure.bh(bham_final, test_sm_dat, test_dat$y)
-R> 
-R> # pred <- predict.glm(.mdl$mdl, newdata = test_sm_dat, type = "response")
-R> # measure.glm(test_dat$y, pred, family = fam_fun$family) 
+R> bham_final$offset = 0
+R> pred_res <- predict(bham_final, newx = as.matrix(test_sm_dat),
++                     newoffset = 0, type = "link")
 \end{CodeInput}
 \end{CodeChunk}
 
-\subsection{Other Functions}
+To note, we suggest to use \texttt{BhGLM::measure.bh} to provide a quick
+prediction performance of the new dataset.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> if(!require("devtools")) install.packages("devtools")
+R> if(!require("BhGLM")) devtools::install_github("nyiuab/BhGLM")
+R> 
+R> BhGLM::measure.bh(bham_final, as.matrix(test_sm_dat), test_dat$y)
+\end{CodeInput}
+\end{CodeChunk}
 
 \section{Discussion}
+
+In this article, we introduce the R package \texttt{BHAM} to fit
+Bayesian Hierarchical additive models with two-part spike-and-slab LASSO
+prior for high-dimensional data analysis. The R package can be widely
+used to analyze large-scale molecular and clinical data with the
+flexibility to model both linear and nonlinear signals, and hence
+provide improved prediction accuracy. Meanwhile, compared to the more
+complicated machine learning method, the additive models can provide
+more interpretable inference of the underlying signals. In addition, the
+two-part spike-and-slab LASSO prior for smooth function and the EM-CD
+algorithm provides a natural solution to the bi-level selection problem,
+without further requirement of thresholding or hypothesis testing.
+Fitting a high-dimensional Bayesian model is normally computationally
+intensive. We provide an economic solution by integrate coordinate
+descent algorithm with the EM procedure. The implementation of the
+algorithm leverage some commonly used modeling interface form the
+standard R packages and hence granting robustness.
+
+To help the users to familiarize the utilities of \texttt{BHAM}, we
+provide a analysis pipeline in this manuscript. We demonstrate the
+construction of the design matrix, model fitting and tuning, signal
+selection and visualization, and prediction via the analysis of a
+simulated data set. Due to the space constraint, we can't showcase all
+the functionality offered by \texttt{BHAM} for example fitting a Cox
+proportional hazard model, time-varying effect model, or fitting the
+model with the EM-Newton or EM-IWLS algorithms. We recommand the user to
+visit an interactive website for more details via
+\url{https://boyiguo1.github.io/BHAM/}.
 
 \clearpage
 \section{Reference}
