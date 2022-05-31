@@ -1,8 +1,13 @@
 ## Load your packages, e.g. library(targets).
-source("./packages.R")
+library(targets)
+library(tarchetypes)
+
+tar_option_set(
+  packages = c("rticles")
+)
 
 ## Load your R files
-lapply(list.files("./R", full.names = TRUE), source)
+# lapply(list.files("./R", full.names = TRUE), source)
 
 ## tar_plan supports drake-style targets and also tar_target()
 tar_plan(
@@ -22,8 +27,7 @@ tar_plan(
 
   # * Render Manuscript
   tar_render(manu,
-             "./Manuscript/00-main.Rmd",
-             output_dir = "./",
+             "Manuscript/00-main.Rmd",
              output_file = "BHAM_software.pdf"
-  ),
+  )
 )
