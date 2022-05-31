@@ -32,6 +32,7 @@ keywords:
 preamble: >
   \usepackage{amsmath}
 output: rticles::jss_article
+bibliography: "references.bib"
 ---
 
 \newcommand{\pr}{\text{Pr}}
@@ -43,8 +44,10 @@ output: rticles::jss_article
 options(prompt = 'R> ', continue = '+ ')
 
 library(targets)
+library(BHAM)
+library(BhGLM)
 
-tar_read(child_rmds)
+tar_load(child_rmds)
 ```
 
 ```{r intro_sec, child = "01-intro.Rmd"}
