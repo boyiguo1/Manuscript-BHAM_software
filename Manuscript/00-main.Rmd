@@ -50,17 +50,16 @@ library(BhGLM)
 tar_load(child_rmds)
 ```
 
-```{r intro_sec, child = "01-intro.Rmd"}
+```{r intro_sec, child = child_rmds[[1]]}
 ```
 
-```{r models_sec, child = "02-model.Rmd"}
+```{r models_sec, child = child_rmds[[2]]}
 ```
 
-```{r demonstration, child = "03-code.Rmd"}
+```{r demonstration, child = child_rmds[[3]]}
 ```
 
-```{r discussion, child = "04-discussion.Rmd"}
+```{r discussion, child = child_rmds[[4]]}
 ```
 
 \clearpage
-\section{Reference}

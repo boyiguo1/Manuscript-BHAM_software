@@ -3,3 +3,5 @@ In this article, we introduce the R package \texttt{BHAM} to fit Bayesian Hierar
 
 To help the users to familiarize the utilities of \texttt{BHAM}, we provide a analysis pipeline in this manuscript. We demonstrate the construction of the design matrix, model fitting and tuning, signal selection and visualization, and prediction via the analysis of a simulated data set. Due to the space constraint, we can't showcase all the functionality offered by \texttt{BHAM} for example fitting a Cox proportional hazard model, time-varying effect model, or fitting the model with the  EM-Newton or EM-IWLS algorithms. We recommand the user to visit an interactive website for more details via \url{https://boyiguo1.github.io/BHAM/}.
 
+
+Optimal goal is to provide interface for optimal customizability.
