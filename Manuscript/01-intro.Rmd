@@ -4,31 +4,8 @@ High-dimensional statistics has been an indispensable area of research for its h
 
 There are many proposals on high-dimensional additive models. The main idea of these proposals focus on the application of grouped sparse penalties, for example, group LASSO penalty \citep{ravikumar2009, huang2010} and group SCAD penalty \citep{wang2007, xue2009}, on the coefficients of additive functions. There methods are developed primarily for variable selection and may provide inaccurate estimation of the underlying functions due to the excess shrinkage of the sparsity penalty \citep{scheipl2013}. Thus, the prediction performance will be affected. In addition, these methods take an "all-in-all-out" approach for variable selection, and fails to answer if the underlying signals are linear or nonlinear. To address these shortcomings, Guo and his colleagues proposed the two-part spike-and-slab LASSO prior for generalized additive models \citep{guo2022_GAM} and additive Cox proportional hazards models \citep{guo2022_Cox}. Instead of using the computationally prohibitive Markov chain Monte Carlo approximations, optimization-based EM-Coordinate Descent algorithms are developed for model fitting. Monte Carlo studies and real data analysis demonstrate improved prediction and computation performances compare to the state-of-the-art additive models.
 
-In this article, we introduce an R package \texttt{BHAM} that implements the spike-and-slab LASSO additive models and computationally efficient algorithms. Notably, \texttt{BHAM} provides functions for setting up and fitting various spike-and-slab LASSO additive models, including generalized additive models for various continuous and discrete outcomes and Cox proportional hazards models for censored survival outcomes. The specification of additive functions follows a popular syntax implemented in [`mgcv`](https://cran.r-project.org/web/packages/mgcv/index.html). We provide a parser function that translates high-dimensional predictors names and their corresponding additive functions to model formulas, rendering convenience to model large datasets with hundreds and thousands of predictors. Other ancillary functions include cross-validation, model summary, and effect visualization. Our objective with \texttt{BHAM} is to offer a friendly user experience that emphasizes statistical validity, computational scalability and utility flexibility for high-dimension additive models.
+In this article, we introduce an R package \texttt{BHAM} that implements the spike-and-slab LASSO additive models and computationally efficient algorithms. Notably, \texttt{BHAM} provides functions for setting up and fitting various spike-and-slab LASSO additive models, including generalized additive models for various continuous and discrete outcomes and Cox proportional hazards models for censored survival outcomes. The specification of additive functions follows a popular syntax implemented in \texttt{mgcv} \citep{r_mgcv}. We provide a parser function that translates high-dimensional predictors names and their corresponding additive functions to model formulas, rendering convenience to model large datasets with hundreds and thousands of predictors. Other ancillary functions include cross-validation, model summary, and effect visualization. Our objective with \texttt{BHAM} is to offer a friendly user experience that emphasizes statistical validity, computational scalability and utility flexibility for high-dimension additive models.
 
-\subsection{Literature Review}
+There are other R packages that facilitate flexible modeling of complex signals via additive models for high-dimensional data analysis. The R package \texttt{COSSO} \citep{r_cosso} implements smoothing spline ANOVA models with the component selection and smoothing operator to analyze generalized and survival outcomes. The packages \texttt{spikeSlabGAM} \citep{r_spikeSlabGAM} and \texttt{sparseGAM} \citep{r_sparseGAM} fits generalized additive regression models with spike-and-slab and spike-and-slab LASSO priors respectively; nevertheless, both packages does not offer analytic support to model time-to-event outcome. The package \texttt{tfCox} \citep{r_tfCox} implements additive Cox proportional hazards models with trend filtering. \cite{scheipl2013} summarized some other scripts or packages to fit additive models published before 2013, including \texttt{spam} \citep{ravikumar2009}, \texttt{hgam} \citep{meier2009} and \texttt{hypergsplines} \citep{bove2011}; unfortunately, these tools are hardly available now due to maintenance issues. One inconvenience shared by the packages is the limited ability to customize additive functions due to the difficulty to formulate the high-dimensional model. In the proposed \texttt{BHAM}, we address this challenge by providing an interface that parses a data frame of spline function specification to model formula, and hence provide greater flexibility compared to previous packages.
 
-There are many other R packages that facilitate flexible modeling of signals in high-dimensional data analysis. [TODO: couple sentences]
-
-We enlist current available packages that have similar functionality, i.e. modeling to the best of our knowledge. To note, we don't list packages that are unable of handling high-dimensional data, for example the well known R package \texttt{mgcv}, and high-dimensional packages that requires extra steps to construct the design matrix of functional form of predictors (Such implementation can be found with grouped sparse models, for example \texttt{SGL}.)
-
-There are other methods to model survival outcome and provides proporitonal hazards interpretation, for example \cite{Marra2021} provides a link-based survival additive model for mixed censoring in package \texttt{GJRM}.
-
-\cite{scheipl2013} Summarized the software development of additive models in high-dimensional data analysis before 2013.
-
-```{=tex}
-\subsubsection{Generalized Additive Model}
-\begin{itemize}
-\item \texttt{COSSO}
-\item \texttt{spikeSlabGAM}
-\item \texttt{sparseGAM}
-\end{itemize}
-```
-```{=tex}
-\subsubsection{Additive Cox Proportional Hazard Model}
-\begin{itemize}
-\item \texttt{COSSO}
-\item \texttt{tfCox}
-\end{itemize}
-```
-[TODO: Add a sentence in the literature review paragraph describe the additive functions are costimizable, and provide greater flexibility compared to previous models.]
+The remainder of this paper is as follows. In Section 2, we briefly describe the spike-and-slab LASSO prior of smooth functions and the computationally efficient EM-Coordinate Descent algorithm for model fitting. Section 3 demonstrates the analytic pipeline to analyze high-dimensional data with the R package \texttt{BHAM}. We deliver the conclusion in Section 4. Fore more details and examples about \texttt{BHAM}, we encourage the readers to visit \url{https://boyiguo1.github.io/BHAM/}.
