@@ -1,12 +1,10 @@
 \section{Features}
 
-In this section, we demonstrate how to fit Bayesian hierarchical additive model with two-part spike-and-slab LASSO prior, and introduce the model tuning, diagnostic and other utility functions for visualize additive functions, bi-level selection.
-
-In this section, we describe to the users the workflow for of fitting a high-dimensional additive model with the two-part spike-and-slab LASSO prior  in `BHAM`. Specifically, we introduce how to 1) prepare the high-dimensional design matrix for fitting the proposed model, 2) fit generalized additive model, 3) Model tuning and performance assessment, and 4) visualize the bi-level variable selection.
+In this section, we demonstrate how to fit Bayesian hierarchical additive model with two-part spike-and-slab LASSO prior using the package \texttt{BHAM}. Specifically, we introduce how to 1) prepare the high-dimensional design matrix for fitting the proposed model, 2) fit generalized additive model, 3) tune models and assess model performance, and 4) visualize the bi-level variable selection.
 
 
 \subsection{Installation}
-To install the latest development version of `BHAM` package from **GitHub**, type the following command in R console:
+To install the latest development version of the `BHAM` package from **GitHub**, type the following command in R console:
 
 ```{r eval = FALSE}
 if (!require(devtools)) install.packages("devtools")
@@ -16,7 +14,10 @@ if(!require(BHAM)) devtools::install_github("boyiguo1/BHAM", build_vignettes = F
 You can also set `build_vignettes=TRUE` but this will slow down the installation drastically (the vignettes can always be accessed online anytime at [boyiguo1.github.io/BHAM/articles](https://boyiguo1.github.io/BHAM/articles)).
 
 \subsection{Preliminaries}
-We use a simulated data set to demonstrate our package. The data generating mechanism is motivated by Bai (citation) and programmed in the function `sim_Bai`: we assume there are $p=10$ predictors where the first four predictors have effects on the outcome (see functions below), and the rest of predictors don't, i.e $B_j(x_j) = 0, j = 5, \dots, p$. [TODO: Insert functions here on what the equations are]. 
+We use a simulated data set to demonstrate our package. The data generating mechanism is motivated by \citet{bai2021} and programmed in the function `sim_Bai`: we assume there are $p=10$ predictors where the first four predictors have effects on the outcome (see functions below), and the rest of predictors don't, i.e $B_j(x_j) = 0, j = 5, \dots, p$.
+
+[TODO: Insert functions here on what the equations are]. 
+
 With the data generating mechanism, we simulate two datasets with the binary outcome from Bernoulli trials with logit link function. To note, the function `sim_Bai` can also simulate Gaussian and Poisson outcomes using the same data generating mechanism. The sample sizes of these two datasets are 500 and 1000 for training and testing respectively. The following code section creates the training and testing datasets.
 ```{r}
 library(BHAM)
