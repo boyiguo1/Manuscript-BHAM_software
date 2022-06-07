@@ -246,3 +246,78 @@ Penalty.},
 	url = {http://dx.doi.org/10.1111/j.2517-6161.1977.tb01600.x},
 	langid = {en}
 }
+
+
+@article{Tang2017,
+abstract = {{\textcopyright} 2017 The Author. Motivation: Large-scale molecular profiling data have offered extraordinary opportunities to improve survival prediction of cancers and other diseases and to detect disease associated genes. However, there are considerable challenges in analyzing large-scale molecular data. Results: We propose new Bayesian hierarchical Cox proportional hazards models, called the spikeand- slab lasso Cox, for predicting survival outcomes and detecting associated genes. We also develop an efficient algorithm to fit the proposed models by incorporating Expectation-Maximization steps into the extremely fast cyclic coordinate descent algorithm. The performance of the proposed method is assessed via extensive simulations and compared with the lasso Cox regression. We demonstrate the proposed procedure on two cancer datasets with censored survival outcomes and thousands of molecular features. Our analyses suggest that the proposed procedure can generate powerful prognostic models for predicting cancer survival and can detect associated genes. Availability and implementation: The methods have been implemented in a freely available R package BhGLM (http://www.ssg.uab.edu/bhglm/).},
+author = {Tang, Zaixiang and Shen, Yueping and Zhang, Xinyan and Yi, Nengjun},
+doi = {10.1093/bioinformatics/btx300},
+file = {:C\:/Users/boyiguo1/AppData/Local/Mendeley Ltd./Mendeley Desktop/Downloaded/Tang et al. - 2017 - The spike-and-slab lasso Cox model for survival prediction and associated genes detection.pdf:pdf},
+issn = {14602059},
+journal = {Bioinformatics},
+number = {18},
+pages = {2799--2807},
+title = {{The spike-and-slab lasso Cox model for survival prediction and associated genes detection}},
+volume = {33},
+year = {2017}
+}
+@article{Tang2017a,
+abstract = {{\textcopyright} 2017 by the Genetics Society of America. Large-scale “omics” data have been increasingly used as an important resource for prognostic prediction of diseases and detection of associated genes. However, there are considerable challenges in analyzing high-dimensional molecular data, including the large number of potential molecular predictors, limited number of samples, and small effect of each predictor. We propose new Bayesian hierarchical generalized linear models, called spike-and-slab lasso GLMs, for prognostic prediction and detection of associated genes using large-scale molecular data. The proposed model employs a spike-and-slab mixture double-exponential prior for coefficients that can induce weak shrinkage on large coefficients, and strong shrinkage on irrelevant coefficients. We have developed a fast and stable algorithm to fit large-scale hierarchal GLMs by incorporating expectation-maximization (EM) steps into the fast cyclic coordinate descent algorithm. The proposed approach integrates nice features of two popular methods, i.e., penalized lasso and Bayesian spike-and-slab variable selection. The performance of the proposed method is assessed via extensive simulation studies. The results show that the proposed approach can provide not only more accurate estimates of the parameters, but also better prediction. We demonstrate the proposed procedure on two cancer data sets: a well-known breast cancer data set consisting of 295 tumors, and expression data of 4919 genes; and the ovarian cancer data set from TCGA with 362 tumors, and expression data of 5336 genes. Our analyses show that the proposed procedure can generate powerful models for predicting outcomes and detecting associated genes. The methods have been implemented in a freely available R package BhGLM (http://www.ssg.uab.edu/bhglm/).},
+author = {Tang, Zaixiang and Shen, Yueping and Zhang, Xinyan and Yi, Nengjun},
+doi = {10.1534/genetics.116.192195},
+file = {:C\:/Users/boyiguo1/AppData/Local/Mendeley Ltd./Mendeley Desktop/Downloaded/Tang et al. - 2017 - The spike-and-slab lasso generalized linear models for prediction and associated genes detection.pdf:pdf},
+issn = {19432631},
+journal = {Genetics},
+keywords = {Cancer,Double-exponential distribution,Generalized linear model,Outcome prediction,Spike-and-slab lasso},
+number = {1},
+pages = {77--88},
+title = {{The spike-and-slab lasso generalized linear models for prediction and associated genes detection}},
+volume = {205},
+year = {2017}
+}
+@article{Tang2019,
+abstract = {Group structures among genes encoded in functional relationships or biological pathways are valuable and unique features in large-scale molecular data for survival analysis. However, most of previous approaches for molecular data analysis ignore such group structures. It is desirable to develop powerful analytic methods for incorporating valuable pathway information for predicting disease survival outcomes and detecting associated genes. We here propose a Bayesian hierarchical Cox survival model, called the group spike-and-slab lasso Cox (gsslasso Cox), for predicting disease survival outcomes and detecting associated genes by incorporating group structures of biological pathways. Our hierarchical model employs a novel prior on the coefficients of genes, i.e., the group spike-and-slab double-exponential distribution, to integrate group structures and to adaptively shrink the effects of genes. We have developed a fast and stable deterministic algorithm to fit the proposed models. We performed extensive simulation studies to assess the model fitting properties and the prognostic performance of the proposed method, and also applied our method to analyze three cancer data sets. Both the theoretical and empirical studies show that the proposed method can induce weaker shrinkage on predictors in an active pathway, thereby incorporating the biological similarity of genes within a same pathway into the hierarchical modeling. Compared with several existing methods, the proposed method can more accurately estimate gene effects and can better predict survival outcomes. For the three cancer data sets, the results show that the proposed method generates more powerful models for survival prediction and detecting associated genes. The method has been implemented in a freely available R package BhGLM at
+                    https://github.com/nyiuab/BhGLM
+
+                  .},
+author = {Tang, Zaixiang and Lei, Shufeng and Zhang, Xinyan and Yi, Zixuan and Guo, Boyi and Chen, Jake Y. and Shen, Yueping and Yi, Nengjun},
+doi = {10.1186/s12859-019-2656-1},
+file = {:C\:/Users/boyiguo1/AppData/Local/Mendeley Ltd./Mendeley Desktop/Downloaded/Tang et al. - 2019 - Gsslasso Cox A Bayesian hierarchical model for predicting survival and detecting associated genes by incorporating.pdf:pdf},
+issn = {14712105},
+journal = {BMC Bioinformatics},
+keywords = {Cox survival models,Grouped predictors,Hierarchical modeling,Lasso,Pathway,Spike-and-slab prior},
+number = {1},
+pages = {1--15},
+publisher = {BMC Bioinformatics},
+title = {{Gsslasso Cox: A Bayesian hierarchical model for predicting survival and detecting associated genes by incorporating pathway information}},
+volume = {20},
+year = {2019}
+}
+@article{Tang2018,
+abstract = {MotivationLarge-scale molecular data have been increasingly used as an important resource for prognostic prediction of diseases and detection of associated genes. However, standard approaches for omics data analysis ignore the group structure among genes encoded in functional relationships or pathway information.ResultsWe propose new Bayesian hierarchical generalized linear models, called group spike-and-slab lasso GLMs, for predicting disease outcomes and detecting associated genes by incorporating large-scale molecular data and group structures. The proposed model employs a mixture double-exponential prior for coefficients that induces self-adaptive shrinkage amount on different coefficients. The group information is incorporated into the model by setting group-specific parameters. We have developed a fast and stable deterministic algorithm to fit the proposed hierarchal GLMs, which can perform variable selection within groups. We assess the performance of the proposed method on several simulated scenarios, by varying the overlap among groups, group size, number of non-null groups, and the correlation within group. Compared with existing methods, the proposed method provides not only more accurate estimates of the parameters but also better prediction. We further demonstrate the application of the proposed procedure on three cancer data sets by utilizing pathway structures of genes. Our results show that the proposed method generates powerful models for predicting disease outcomes and detecting associated genes.AvailabilityThe methods have been implemented in a freely available R package BhGLM (http://www.ssg.uab.edu/bhglm/).Contactnyi@uab.eduSupplementary informationSupplementary data are available at Bioinformatics online.},
+author = {Tang, Zaixiang and Shen, Yueping and Li, Yan and Zhang, Xinyan and Wen, Jia and Qian, Chen'Ao and Zhuang, Wenzhuo and Shi, Xinghua and Yi, Nengjun},
+doi = {10.1093/bioinformatics/btx684},
+file = {:C\:/Users/boyiguo1/AppData/Local/Mendeley Ltd./Mendeley Desktop/Downloaded/Tang et al. - 2018 - Group spike-And-slab lasso generalized linear models for disease prediction and associated genes detection by incor.pdf:pdf},
+issn = {14602059},
+journal = {Bioinformatics},
+number = {6},
+pages = {901--910},
+title = {{Group spike-And-slab lasso generalized linear models for disease prediction and associated genes detection by incorporating pathway information}},
+volume = {34},
+year = {2018}
+}
+
+@article{Wu2019,
+author = {Wu, Jiacheng and Witten, Daniela},
+doi = {10.1080/10618600.2019.1592758},
+file = {:Users/boyiguo/Library/Application Support/Mendeley Desktop/Downloaded/Wu, Witten - 2019 - Flexible and Interpretable Models for Survival Data.pdf:pdf},
+issn = {1061-8600},
+journal = {Journal of Computational and Graphical Statistics},
+mendeley-groups = {Dissertation/Survival},
+number = {4},
+pages = {954--966},
+title = {{Flexible and Interpretable Models for Survival Data}},
+url = {https://www.tandfonline.com/doi/full/10.1080/10618600.2019.1592758},
+volume = {28},
+year = {2019}
+}

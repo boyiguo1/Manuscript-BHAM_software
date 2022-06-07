@@ -1,4 +1,4 @@
-\section{Features}
+\section{Analytic Pipline Using BHAM}
 
 In this section, we demonstrate how to fit Bayesian hierarchical additive model with two-part spike-and-slab LASSO prior using the package \texttt{BHAM}. Specifically, we introduce how to 1) prepare the high-dimensional design matrix for fitting the proposed model, 2) fit generalized additive model, 3) tune models and assess model performance, and 4) visualize the bi-level variable selection.
 
@@ -16,9 +16,12 @@ You can also set `build_vignettes=TRUE` but this will slow down the installation
 \subsection{Preliminaries}
 We use a simulated data set to demonstrate our package. The data generating mechanism is motivated by \citet{bai2021} and programmed in the function `sim_Bai`: we assume there are $p=10$ predictors where the first four predictors have effects on the outcome (see functions below), and the rest of predictors don't, i.e $B_j(x_j) = 0, j = 5, \dots, p$.
 
-[TODO: Insert functions here on what the equations are]. 
+\begin{align*}
+B_1(x_1) &= 5 \sin(2\pi x_1) & & B_2(x_2) &= - 4 \cos(2\pi x_2 -0.5)\\
+B_3(x_3) & = 6(x_3-0.5) & & B_4(x_4) &= - 5(x_4^2 -0.3)
+\end{align*}
 
-With the data generating mechanism, we simulate two datasets with the binary outcome from Bernoulli trials with logit link function. To note, the function `sim_Bai` can also simulate Gaussian and Poisson outcomes using the same data generating mechanism. The sample sizes of these two datasets are 500 and 1000 for training and testing respectively. The following code section creates the training and testing datasets.
+Using this data generating mechanism, we simulate two datasets of binary outcomes with the logit link function from Bernoulli trials. To note, the function `sim_Bai` can also simulate Gaussian and Poisson outcomes using the same data generating mechanism. The sample sizes of these two datasets are 500 and 1000 for training and testing respectively. The following code section creates the training and testing datasets.
 ```{r}
 library(BHAM)
 set.seed(1) ## simulate some data... 
@@ -33,22 +36,22 @@ dat <- train_dat$dat %>% data.frame
 test_tmp <- sim_Bai(n_test, p)
 test_dat <- test_tmp$dat %>% data.frame
 ```
-The first ten observation of the data set look like below
+The first ten observations of the training data set look like below.
 ```{r echo = FALSE}
 head(dat, 10)
 ```
 
 
 \subsection{Set up Design Matrix of additive functions}
-Given the raw data, we would like to translate the additive functions to the their matrix form. The challenge here is to allow a customizable and convenient way to specify the high-dimensional model. Our solution here is to use a data frame to accomodate each predictor in the raw data set, and allows each predictor have their spline function specified. There are three columns for this formulat specification data frame, including `Var` `Func`, `Args`. The `Var` column hosts the variable name; the `Func` column hosts the spline function following the commonly used generalized additive model \texttt{mgcv}; the `Args` column hosts the detail specification of the spline function. The data frame can be constructed manually for low-dimensional settings and also be manipulated easily when the number of spline components grows to tens or hundreds. See the examples below.
+Given the raw data, we would like to translate the additive functions to the their matrix form. The challenge here is to provide convenient way to specify the high-dimensional model with enough flexibility to customize the additive functions. Our solution here is to use a data frame to accommodate each predictor in the raw data set and allow each predictor have their spline function specified respectively. There are three columns for this model specification data frame, including `Var` `Func`, `Args`. The `Var` column hosts the variable name; the `Func` column hosts the spline function following the commonly used syntax from \texttt{mgcv}; the `Args` column hosts the detail specification of the spline function. The data frame can be constructed manually for low-dimensional settings and also be manipulated easily when the number of spline components grows to tens or hundreds. See the examples below.
 
 ```{r}
 # Low-dimensional setting
 mgcv_df <- dplyr::tribble(
   ~Var, ~Func, ~Args,
-  "X1",  "s",     "bs='cr', k=5",
-  "X2",  "s",     NA,
-  "X3",  "s",    "",
+  "X1",  "s", "bs='cr', k=5",
+  "X2",  "s", NA,
+  "X3",  "s", "",
 )
 
 # High-dimensional setting
@@ -59,9 +62,9 @@ mgcv_df <- data.frame(
 )
 ```
 
-After having the model specification data frame, the next task is to construct the overall design matrix. We provide a function `construct_smooth_data` to construct the design matrix for each predictor according to their spline specification iteratively, and binding all design matrices together with a systematic naming convention. The linear component of the spline function is named with the suffix `.null` and the nonlinear components are named with the suffix `.pen`. In `construct_smooth_data`, we take three steps of matrix manipulation via the `smoothCon` from the package `mgcv`: 1) linear constraints, 2) eigendecomposition of the smoothing matrix $S$ to isolate linear and nonlinear spaces, 3) scaling of the design matrix such that the coefficients are on the same scale. As we use `mgcv::smoothCon` to decode the spline specification, we carry over the ability to work with user-defined spline functions as long as it follows `mgcv` standard. 
+After having the model specification data frame, the next task is to construct the overall design matrix. We provide a function `construct_smooth_data` to construct the design matrix for each predictor according to their spline specification. Then we bind the design matrices of all spline functions together with a systematic naming convention. The linear component of each spline function is named with the suffix `.null` and the nonlinear components are named with the suffix `.pen`. In `construct_smooth_data`, we take three steps of matrix manipulation via the `smoothCon` from the package `mgcv`: 1) set up linear constraints for identifiability, 2) eigendecomposition of the smoothing matrix $S$ to isolate linear and nonlinear spaces, 3) scaling of the design matrix such that the coefficients are on the same scale. As we use `mgcv::smoothCon` to decode the spline specification, we carry over the ability to work with user-defined spline functions as long as it follows `mgcv` standard. 
 
-The `construct_smooth_data` function have two arguments, the model specification data frame and the raw data, and return the finalized design matrix `data` and the smooth specification functions `Smooth` which will later be used to construct the design matrix of the new datasets for the prediction purpose.
+The `construct_smooth_data` function has two arguments, the model specification data frame and the raw data. It returns the finalized design matrix `data` and the smooth specification functions `Smooth` which will later be used to construct the design matrix of the new datasets for prediction.
 
 ```{r}
 train_sm_dat <- BHAM::construct_smooth_data(mgcv_df, dat)
@@ -70,16 +73,16 @@ train_smooth_data <- train_sm_dat$data
 ```
 
 \subsection{Fitting the Bayesian Hierarchical model}
-With the additive function design matrix constructed, we are ready to fit the Bayesian hierarchical model with the two-part spike-and-slab LASSO prior for smooth function. The model fitting algorithm, implementing the EM-coordinate descent algorithm, is wrapped in the function `bamlasso`. The necessary arguments are `x` for the design matrix, `y` for the outcome, `family` for the family distribution of the outcome, and `group` for the additive functions. We provide a utility function `make_group` to automate the grouping, taking the column names from the design matrix. It generates a list of vectors containing the bases of each additive function. Another important argument is `ss`, which is a vector of length 2 for the spike and slab components of the spike-and-slab LASSO scale parameters, i.e. the mixture double exponential distribution. The argument `ss` defaults to a spike double exponential density with scale parameter 0.04, and a slab double exponential density with scale parameter 0.5, which is a general starting prior based on empirical evidence.
+With the additive function design matrix constructed, we are ready to fit the Bayesian hierarchical model with the two-part spike-and-slab LASSO prior. The model fitting algorithm, implementing the EM-coordinate descent algorithm, is wrapped in the function `bamlasso`. The necessary arguments are `x` for the design matrix, `y` for the outcome, `family` for the family distribution of the outcome, and `group` for the additive functions. We provide a utility function `make_group` to automate the grouping, by organizing column names from the design matrix. It generates a list of vectors containing the bases of each additive function. Another important argument is `ss`, which is a vector of length 2 for scale parameters of the spike and slab densities. To recall, the spike-and-slab LASSO prior can be formulated as the mixture of two double exponential distributions of mean 0, and hence has two scale parameters. The argument `ss` defaults to a spike double exponential density with scale parameter 0.04, and a slab double exponential density with scale parameter 0.5. These scale parameters is a general starting value based on empirical evidence \citep{Tang2018, Tang2019}.
 
 ```{r}
 bham_mdl <- bamlasso(x = train_smooth_data, y = dat$y,
                      family = "binomial",
                      group = make_group(names(train_smooth_data)))
 ```
-\subsubsection{Tuning via Cross-validation}
-With the specified `ss` argument, the function `bamlasso` fit the asked model. Nevertheless, it is not necessary the optimal model. To select the optimal model, we employ a tuning step via cross validation, which is implemented in the function `tune.bgam`. The main arguments are the previously fitted model where the model data, additive function specifications are stored, a sequence of spike density scale parameter $s_0$, and number of folds. The following example shows to use five-fold cross validation to examine a vector of $s_0$ options, from 0.005 to 0.1 with 0.01 increment. Currently, we don't consider to examine values of the slab density scale parameter $s_1$ for computational economy, as the previously literature shows $s_1$ has modest impact on the model performance. The tuning function also allows nested cross-validation by allowing running multiple cross-validation via `ncv` and user-specified folds via `foldid`. 
 
+\subsubsection{Tuning via Cross-validation}
+With the specified `ss` argument, the function `bamlasso` fit the model. Nevertheless, the fitted model may not be the optimal model. To select the optimal model, we employ a tuning step via cross validation, which is implemented in the function `tune.bgam`. The main arguments are the previously fitted model where the model data, additive function specifications are stored, a sequence of spike density scale parameter $s_0$, and number of folds. The following example shows to use five-fold cross validation to examine a vector of $s_0$ options, from 0.005 to 0.1 with 0.01 increments. Currently, we don't consider the examination of the slab density scale parameter $s_1$ for computational economy. Previously literature \citep{tang2017, Tang2017a} shows $s_1$ has modest impact on the model performance. The tuning function also allows nested cross-validation by allowing running multiple cross-validation via `ncv` and user-specified folds via `foldid`. 
 ```{r message=FALSE}
 s0_seq <- seq(0.005, 0.1, 0.01)
 cv_res <- tune.bgam(bham_mdl, nfolds = 5, s0= s0_seq, verbose = FALSE)
@@ -88,14 +91,14 @@ The cross-validation tuning function returns different performance metrics, incl
 ```{r}
 head(cv_res, 5)
 ```
-Here we want to caution the reader, if the performance metric varies monotonically with the candidate $s_0$ values, it would be better to examine a broader range of candidate $s_0$ values, as the sequence contains a local optimal performance where the global optimal performance is not reached yet. Using some visual aid to examine the $s_0$ and performance metric relationship would be more helpful.
+Here we want to caution the reader, if the performance metric varies monotonically with the candidate $s_0$ values, it would be better to examine a broader range of candidate $s_0$ values, as the sequence contains a local optimal where the global optimal is not reached yet. Using some visual aid to examine the $s_0$ and performance metric relationship would be more helpful.
 
 ```{r}
 plot(cv_res$s0, cv_res$deviance)
 lines(cv_res$s0, cv_res$deviance)
 ```
 
-With the cross-validation results, we can choose from all the candidate values of $s_0$ and select the one with the best performance using the preferred metrics. For example, we can use the $s_0$ value that gives the minimum cross-validated deviance, and re-fit the model. Hence, this would be the optimal model.
+With the cross-validation results, we can choose from all the candidate values of $s_0$ and select the one with the best performance using the preferred metrics. For example, we can use the $s_0$ value that gives the minimum cross-validated deviance and re-fit the model. Hence, this would be the optimal model.
 
 ```{r}
 s0_min <- cv_res$s0[which.min(cv_res$deviance)]
@@ -105,13 +108,11 @@ bham_final <- bamlasso(x = train_smooth_data, y = dat$y,
                        ss = c(s0_min, 0.5))
 ```
 
-To note, it is a convention to use some predictive metrics to select the best performed model among all the candidate values, for both predictive purpose and variable selection purpose. However, previous literature shows that when using predictive metrics to select model for variable selection purpose, the variable selection performance may not be optimal.
+To note, it is a convention to use some predictive metrics to select the best performed model among all the candidate values for both predictive purpose and variable selection purpose. However, previous literature \citep{Wu2019} shows that when using predictive metrics to select model for variable selection purpose, the variable selection performance may not be optimal.
 
 \subsection{Varible Selection and Curve Intropolation}
-In the proposed R package, we also provide some utility functions to provide more insights for the additive function inferences.
-
 \subsubsection{Variable Selecrtion}
-We provide a function to summarize the variable selection of the produced model, namely `bamlasso_var_selection`. The input of the function is a fitted BHAM model, and the output of the function is a list of two components, `parametric` and `non-parametric`. The `parametrc` component is a vector contains  the selected variables that were fitted in the model in its parameteric form, i.e. not specified via additive functions. The `non-parametric` component contains a dataframe with 3 columns, `Variable`, `Linear`, `Nonlinear`. While `Variable` column includes the variable names of selected aadditive functions, `Linear` and `Nonlinear` columns are logical vectors indicating if the linear and nonlinear components of the additive function are included in the model respectively.
+We provide a function to summarize the variable selection result of a produced model, namely `bamlasso_var_selection`. The input of the function is a fitted BHAM model, and the output is a list containing two components, `parametric` and `non-parametric`. The `parametrc` component is a vector contains the selected variables that were fitted in the model in their parameteric form, i.e. not specified via additive functions. The `non-parametric` component contains a data frame with 3 columns, `Variable`, `Linear`, `Nonlinear`. While `Variable` column includes the variable names of selected additive functions, `Linear` and `Nonlinear` columns are logical vectors indicating if the linear and nonlinear components of additive functions are included in the model respectively.
 ```{r}
 bamlasso_vs_part <- bamlasso_var_selection(bham_final)
 ```
@@ -129,7 +130,7 @@ plot_smooth_term(bham_final, "x1", train_smooth,
 ```
 
 \subsection{Prediction}
-To predict new datasets, we need to go through a two-step procedure as previously building the model. First of all, we need to translate the new dataset to their matrix form using the function `make_predict_dat`. This step is necessary because of the reparameterization of the design matrix. The function `make_predict_dat` is based on the function `PredictMat` from `mgcv`. The function asks for an additional input argument besides the new dataset, i.e. the Smooth object when constructing the design matrix for the training data. The output of the function is the new dataset design matrix with conformable dimension and variable name. We show the first six columns of the first five observations in the following example.
+To predict new datasets, we need to go through the same two-step procedure to produce the data matrix as previously when building the model. First of all, we need to translate the new dataset to their matrix form using the function `make_predict_dat`. This step is necessary because of the reparameterization of the design matrix. The function `make_predict_dat` is based on the function `PredictMat` from `mgcv`. The function asks for an additional input argument besides the new dataset, which is the Smooth object when constructing the design matrix for the training data. The output of the function is the new data matrix of the new dataset with conformable dimension and variable name. We show the first six columns of the first five observations in the following example.
 
 ```{r}
 train_smooth <- train_sm_dat$Smooth
@@ -146,7 +147,7 @@ bham_final$offset = 0
 pred_res <- predict(bham_final, newx = as.matrix(test_sm_dat),
                     newoffset = 0, type = "link")
 ```
-To note, we suggest to use `BhGLM::measure.bh` to provide a quick prediction performance of the new dataset.
+To note, we suggest to use `BhGLM::measure.bh` to provide a quick prediction performance evaluation for the new dataset.
 
 ```{r eval= F}
 if(!require("devtools")) install.packages("devtools")
