@@ -2,12 +2,12 @@
 documentclass: jss
 author:
   - name: Boyi Guo
-    affiliation: University of Alabama at Birmingham
+    affiliation: Johns Hopkins University
     # use this syntax to add text on several lines
     address: |
-      | 1665 University Blvd 
-      | Birmingham, AL 35294-0002   USA
-    email: \email{boyiguo1@uab.edu}
+      | 615 N Wolfe St, 
+      | Baltimore, MD 21205   USA
+    email: \email{bguo6@jhu.edu}
     url: http://boyiguo1.github.io
   - name: Nengjun Yi
     affiliation: University of Alabama at Birmingham
@@ -24,7 +24,7 @@ title:
   # For running headers, if needed
   short:     "\\pkg{BHAM}: Bayeisan Hierarchical Additive Model"
 abstract: >
-  \\pkg{BHAM} is a freely avaible R pakcage that implments Bayesian hierarchical additive models for high-dimensional clinical and genomic data. The package includes functions that generlized additive model, and Cox additive model with the spike-and-slab LASSO prior. These functions implements scalable and stable algorithms to estimate parameters. \\pkg{BHAM} also provides utility functions to construct additive models in high dimensional settings, select optimal models, summarize bi-level variable selection results, and visualize nonlinear effects. The package can facilitate flexible modeling of large-scale molecular data, i.e. detecting succeptable variables and inforing disease diagnostic and prognostic. In this article, we describe the models, algorithms and related features implemented in \\pkg{BHAM}. The package is freely avaiable via the public GitHub repository \url{https://github.com/boyiguo1/BHAM}.
+  \pkg{BHAM} is a freely avaible R pakcage that implments Bayesian hierarchical additive models for high-dimensional clinical and genomic data. The package includes functions that generlized additive model, and Cox additive model with the spike-and-slab LASSO prior. These functions implements scalable and stable algorithms to estimate parameters. \pkg{BHAM} also provides utility functions to construct additive models in high dimensional settings, select optimal models, summarize bi-level variable selection results, and visualize nonlinear effects. The package can facilitate flexible modeling of large-scale molecular data, i.e. detecting succeptable variables and inforing disease diagnostic and prognostic. In this article, we describe the models, algorithms and related features implemented in \pkg{BHAM}. The package is freely avaiable via the public GitHub repository \url{https://github.com/boyiguo1/BHAM}.
 keywords:
   # at least one keyword must be supplied
   formatted: [additive model, spike-and-slab LASSO, scalable]

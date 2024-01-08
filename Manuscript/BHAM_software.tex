@@ -7,8 +7,8 @@
 \usepackage[utf8]{inputenc}
 
 \author{
-Boyi Guo\\University of Alabama at Birmingham \And Nengjun
-Yi\\University of Alabama at Birmingham
+Boyi Guo\\Johns Hopkins University \And Nengjun Yi\\University of
+Alabama at Birmingham
 }
 \title{The R Package \pkg{BHAM}: Fast and Scalable Bayeisan Hierarchical
 Additive Model for High-dimensional Data}
@@ -20,19 +20,18 @@ Additive Model for High-dimensional Data}
 
 
 \Abstract{
-\textbackslash pkg\{BHAM\} is a freely avaible R pakcage that implments
-Bayesian hierarchical additive models for high-dimensional clinical and
-genomic data. The package includes functions that generlized additive
-model, and Cox additive model with the spike-and-slab LASSO prior. These
-functions implements scalable and stable algorithms to estimate
-parameters. \textbackslash pkg\{BHAM\} also provides utility functions
-to construct additive models in high dimensional settings, select
-optimal models, summarize bi-level variable selection results, and
-visualize nonlinear effects. The package can facilitate flexible
-modeling of large-scale molecular data, i.e.~detecting succeptable
-variables and inforing disease diagnostic and prognostic. In this
-article, we describe the models, algorithms and related features
-implemented in \textbackslash pkg\{BHAM\}. The package is freely
+\pkg{BHAM} is a freely avaible R pakcage that implments Bayesian
+hierarchical additive models for high-dimensional clinical and genomic
+data. The package includes functions that generlized additive model, and
+Cox additive model with the spike-and-slab LASSO prior. These functions
+implements scalable and stable algorithms to estimate parameters.
+\pkg{BHAM} also provides utility functions to construct additive models
+in high dimensional settings, select optimal models, summarize bi-level
+variable selection results, and visualize nonlinear effects. The package
+can facilitate flexible modeling of large-scale molecular data,
+i.e.~detecting succeptable variables and inforing disease diagnostic and
+prognostic. In this article, we describe the models, algorithms and
+related features implemented in \pkg{BHAM}. The package is freely
 avaiable via the public GitHub repository
 \url{https://github.com/boyiguo1/BHAM}.
 }
@@ -50,10 +49,10 @@ avaiable via the public GitHub repository
 
 \Address{
     Boyi Guo\\
-    University of Alabama at Birmingham\\
-    1665 University Blvd\\
-Birmingham, AL 35294-0002 USA\\
-  E-mail: \email{boyiguo1@uab.edu}\\
+    Johns Hopkins University\\
+    615 N Wolfe St,\\
+Baltimore, MD 21205 USA\\
+  E-mail: \email{bguo6@jhu.edu}\\
   URL: \url{http://boyiguo1.github.io}\\~\\
       Nengjun Yi\\
     University of Alabama at Birmingham\\
@@ -454,34 +453,34 @@ R> cv_res <- tune.bgam(bham_mdl, nfolds = 5, s0= s0_seq, verbose = FALSE)
 \begin{CodeOutput}
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
- Cross-validation time: 0.01 minutes 
+ Cross-validation time: 0.001 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
- Cross-validation time: 0.006 minutes 
+ Cross-validation time: 0.001 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
- Cross-validation time: 0.005 minutes 
+ Cross-validation time: 0.001 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
- Cross-validation time: 0.005 minutes 
+ Cross-validation time: 0.002 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
- Cross-validation time: 0.005 minutes 
+ Cross-validation time: 0.001 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
- Cross-validation time: 0.004 minutes 
+ Cross-validation time: 0.001 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
- Cross-validation time: 0.006 minutes 
+ Cross-validation time: 0.001 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
- Cross-validation time: 0.005 minutes 
+ Cross-validation time: 0.001 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
- Cross-validation time: 0.005 minutes 
+ Cross-validation time: 0.001 minutes 
 Fitting ncv*nfolds = 5 models: 
 1 2 3 4 5 
- Cross-validation time: 0.005 minutes 
+ Cross-validation time: 0.001 minutes 
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -520,7 +519,7 @@ R> lines(cv_res$s0, cv_res$deviance)
 \end{CodeInput}
 
 
-\begin{center}\includegraphics{BHAM_software_files/figure-latex/unnamed-chunk-9-1} \end{center}
+\begin{center}\includegraphics{BHAM_software_files/figure-latex/unnamed-chunk-15-1} \end{center}
 
 \end{CodeChunk}
 
@@ -613,11 +612,11 @@ R> plot_smooth_term(bham_final, "x1", train_smooth,
 +                      max = max(dat[, "x1"]))
 \end{CodeInput}
 \begin{CodeOutput}
-`geom_smooth()` using method = 'loess' and formula 'y ~ x'
+`geom_smooth()` using method = 'loess' and formula = 'y ~ x'
 \end{CodeOutput}
 
 
-\begin{center}\includegraphics{BHAM_software_files/figure-latex/unnamed-chunk-13-1} \end{center}
+\begin{center}\includegraphics{BHAM_software_files/figure-latex/unnamed-chunk-19-1} \end{center}
 
 \end{CodeChunk}
 

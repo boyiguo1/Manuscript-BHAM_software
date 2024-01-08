@@ -42,7 +42,7 @@ head(dat, 10)
 ```
 
 
-\subsection{Set up Design Matrix of additive functions}
+\subsection{Set up design matrix of additive functions}
 Given the raw data, we would like to translate the additive functions to the their matrix form. The challenge here is to provide convenient way to specify the high-dimensional model with enough flexibility to customize the additive functions. Our solution here is to use a data frame to accommodate each predictor in the raw data set and allow each predictor have their spline function specified respectively. There are three columns for this model specification data frame, including `Var` `Func`, `Args`. The `Var` column hosts the variable name; the `Func` column hosts the spline function following the commonly used syntax from \texttt{mgcv}; the `Args` column hosts the detail specification of the spline function. The data frame can be constructed manually for low-dimensional settings and also be manipulated easily when the number of spline components grows to tens or hundreds. See the examples below.
 
 ```{r}
