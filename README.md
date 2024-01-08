@@ -1,5 +1,5 @@
 
-
+[![DOI](https://zenodo.org/badge/457404823.svg)](https://zenodo.org/doi/10.5281/zenodo.10472306)
 
 <!-- badges: start -->
 <!-- badges: end -->
